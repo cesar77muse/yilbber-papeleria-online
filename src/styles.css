@@ -153,5 +153,27 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
   }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+}
+
+@utility font-script {
+  font-family: var(--font-script);
+}
+
+@utility confetti-bg {
+  background-image:
+    radial-gradient(circle at 12% 18%, color-mix(in oklab, var(--brand-orange) 55%, transparent) 0 5px, transparent 6px),
+    radial-gradient(circle at 88% 12%, color-mix(in oklab, var(--brand-navy) 45%, transparent) 0 4px, transparent 5px),
+    radial-gradient(circle at 76% 78%, color-mix(in oklab, var(--brand-orange) 40%, transparent) 0 6px, transparent 7px),
+    radial-gradient(circle at 22% 82%, color-mix(in oklab, var(--brand-navy) 35%, transparent) 0 5px, transparent 6px),
+    radial-gradient(circle at 50% 42%, color-mix(in oklab, var(--brand-orange) 22%, transparent) 0 3px, transparent 4px);
+  background-repeat: no-repeat;
 }
