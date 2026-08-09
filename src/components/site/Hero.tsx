@@ -4,8 +4,11 @@ import { whatsappUrl } from "./data";
 export function Hero() {
   return (
     <section id="inicio" className="relative overflow-hidden">
-      <div className="absolute inset-x-0 -top-24 h-48 rounded-b-[100%] bg-brand-orange/90" aria-hidden="true" />
-      <div className="confetti-bg relative mx-auto max-w-6xl px-4 pb-16 pt-14 md:pb-24 md:pt-20">
+      <div
+        className="pointer-events-none absolute inset-x-0 -top-28 h-40 rounded-b-[100%] bg-brand-orange/90"
+        aria-hidden="true"
+      />
+      <div className="confetti-bg relative mx-auto max-w-6xl px-4 pb-16 pt-24 md:pb-24 md:pt-28">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-orange md:text-sm">
           Distribuidor mayorista de productos escolares y de oficina
         </p>
