@@ -42,10 +42,13 @@ export function Footer() {
         </div>
       </div>
 
-      <p className="mx-auto mt-10 max-w-6xl px-4 text-xs text-secondary-foreground/60">
-        © {new Date().getFullYear()} Papelería Yilbber · Publigráficas Yilbber. Duitama, Boyacá,
-        Colombia.
-      </p>
+      <div className="mx-auto mt-10 max-w-6xl space-y-1 px-4 text-xs text-secondary-foreground/60">
+        <p>
+          © {new Date().getFullYear()} Papelería Yilbber · Publigráficas Yilbber. Duitama, Boyacá,
+          Colombia.
+        </p>
+        <p>© 2026 JCL Industries. All rights reserved.</p>
+      </div>
     </footer>
   );
 }
