@@ -1,5 +1,8 @@
 import { MessageCircle, ArrowRight } from "lucide-react";
 import { whatsappUrl } from "./data";
+import cuadernos from "@/assets/cat-cuadernos.jpg";
+import escolares from "@/assets/cat-escolares.jpg";
+import oficina from "@/assets/cat-oficina.jpg";
 
 export function Hero() {
   return (
@@ -8,7 +11,8 @@ export function Hero() {
         className="pointer-events-none absolute inset-x-0 -top-28 h-40 rounded-b-[100%] bg-brand-orange/90"
         aria-hidden="true"
       />
-      <div className="confetti-bg relative mx-auto max-w-6xl px-4 pb-16 pt-24 md:pb-24 md:pt-28">
+      <div className="confetti-bg relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 pt-24 md:grid-cols-[1.05fr_0.95fr] md:pb-24 md:pt-28">
+        <div>
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-orange md:text-sm">
           Distribuidor mayorista de productos escolares y de oficina
         </p>
@@ -41,8 +45,35 @@ export function Hero() {
             Ver productos
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </a>
+        </div>
+        </div>
 
-          <div className="ml-auto hidden items-center gap-3 rounded-2xl border border-brand-navy/15 bg-card px-5 py-3 shadow-sm md:flex">
+        <div className="relative grid grid-cols-2 gap-3 md:gap-4">
+          <img
+            src={cuadernos}
+            alt="Cuadernos y agendas disponibles en Papelería Yilbber"
+            loading="lazy"
+            width={1024}
+            height={768}
+            className="col-span-2 h-44 w-full rounded-3xl border border-brand-navy/10 object-cover shadow-md md:h-56"
+          />
+          <img
+            src={escolares}
+            alt="Útiles escolares: lápices, colores y marcadores"
+            loading="lazy"
+            width={1024}
+            height={768}
+            className="h-32 w-full rounded-3xl border border-brand-navy/10 object-cover shadow-md md:h-40"
+          />
+          <img
+            src={oficina}
+            alt="Artículos de oficina y archivo"
+            loading="lazy"
+            width={1024}
+            height={768}
+            className="h-32 w-full rounded-3xl border border-brand-navy/10 object-cover shadow-md md:h-40"
+          />
+          <div className="absolute -bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-2xl border border-brand-navy/15 bg-card px-5 py-3 shadow-lg">
             <span className="text-4xl text-brand-orange">40</span>
             <span className="text-xs font-semibold uppercase leading-tight text-brand-navy">
               años
