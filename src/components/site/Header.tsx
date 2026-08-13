@@ -4,12 +4,12 @@ import logo from "@/assets/logo-yilbber.png";
 import { whatsappUrl } from "./data";
 
 const links = [
-  { href: "#inicio", label: "Inicio" },
-  { href: "#nosotros", label: "Nosotros" },
-  { href: "#productos", label: "Productos" },
-  { href: "#pedidos", label: "Pedidos en línea" },
-  { href: "#resenas", label: "Reseñas" },
-  { href: "#contacto", label: "Contacto" },
+  { href: "/#inicio", label: "Inicio" },
+  { href: "/#nosotros", label: "Nosotros" },
+  { href: "/#productos", label: "Productos" },
+  { href: "/pedidos", label: "Pedidos en línea" },
+  { href: "/#resenas", label: "Reseñas" },
+  { href: "/#contacto", label: "Contacto" },
 ];
 
 export function Header() {
@@ -18,7 +18,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-brand-cream/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-        <a href="#inicio" className="flex items-center gap-2">
+        <a href="/#inicio" className="flex items-center gap-2">
           <img src={logo} alt="Publigráficas Yilbber" className="h-9 w-auto md:h-11" />
           <span className="sr-only">Papelería Yilbber</span>
         </a>
