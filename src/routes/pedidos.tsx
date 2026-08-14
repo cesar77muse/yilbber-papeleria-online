@@ -87,7 +87,10 @@ function PedidosPage() {
           <CategoryChips activa={categoria} onChange={setCategoria} />
         </div>
 
-        <p className="mt-6 text-sm text-muted-foreground">
+        <h2 className="mt-10 text-xl uppercase text-brand-navy md:text-2xl">
+          Catálogo de productos
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
           {filtrados.length} {filtrados.length === 1 ? "producto" : "productos"}
         </p>
 
