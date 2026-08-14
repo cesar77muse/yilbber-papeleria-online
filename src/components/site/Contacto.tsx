@@ -73,6 +73,16 @@ export function Contacto() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          const form = e.currentTarget;
+          const datos = new FormData(form);
+          const nombre = String(datos.get("nombre") ?? "");
+          const correo = String(datos.get("correo") ?? "");
+          const mensaje = String(datos.get("mensaje") ?? "");
+          const asunto = encodeURIComponent(`Mensaje de ${nombre} desde la página web`);
+          const cuerpo = encodeURIComponent(
+            `Nombre: ${nombre}\nCorreo: ${correo}\n\n${mensaje}`,
+          );
+          window.location.href = `mailto:${EMAIL}?subject=${asunto}&body=${cuerpo}`;
           setEnviado(true);
         }}
         className="mt-10 rounded-3xl border border-brand-navy/10 bg-card p-6 shadow-sm md:p-8"
