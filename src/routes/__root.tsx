@@ -80,6 +80,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Papelería Yilbber" },
       { name: "author", content: "Papelería Yilbber" },
+      {
+        name: "google-site-verification",
+        content: "_-gHdf94RSE9NBRl2WGZAnsNFYrmTr4-w_W4ch41pkE",
+      },
       { property: "og:site_name", content: "Papelería Yilbber" },
       { property: "og:locale", content: "es_CO" },
       { property: "og:type", content: "website" },
