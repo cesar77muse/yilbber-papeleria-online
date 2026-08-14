@@ -144,8 +144,8 @@ export function Contacto() {
           </button>
           {enviado && (
             <p role="status" className="text-sm font-semibold text-brand-orange">
-              ¡Gracias! El envío de mensajes estará disponible próximamente. Por ahora escríbenos
-              por WhatsApp.
+              ¡Gracias! Abrimos tu aplicación de correo con el mensaje listo para enviar. Si no se
+              abrió, escríbenos a {EMAIL} o por WhatsApp.
             </p>
           )}
         </div>
