@@ -40,6 +40,7 @@ export function Header() {
             href={whatsappUrl}
             target="_blank"
             rel="noreferrer noopener"
+            aria-label="Escríbenos por WhatsApp"
             className="inline-flex items-center gap-2 rounded-full bg-brand-orange px-4 py-2 text-sm font-bold text-primary-foreground shadow-sm transition-transform hover:scale-[1.03]"
           >
             <MessageCircle className="h-4 w-4" aria-hidden="true" />
