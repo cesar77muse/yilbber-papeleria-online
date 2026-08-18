@@ -8,7 +8,9 @@ export type Producto = {
   description: string | null;
   category: string;
   price_cop: number;
-  image_key: string | null;
+  sku: string | null;
+  brand: string | null;
+  image_url: string | null;
 };
 
 export const listProductos = createServerFn({ method: "GET" }).handler(async (): Promise<Producto[]> => {
@@ -20,7 +22,7 @@ export const listProductos = createServerFn({ method: "GET" }).handler(async ():
 
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, description, category, price_cop, image_key")
+    .select("id, name, description, category, price_cop, sku, brand, image_url")
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
 

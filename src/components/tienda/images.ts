@@ -1,29 +1,57 @@
 import cuadernos from "@/assets/cat-cuadernos.jpg";
-import escolares from "@/assets/cat-escolares.jpg";
-import oficina from "@/assets/cat-oficina.jpg";
-import carpetas from "@/assets/cat-carpetas.jpg";
-import escritura from "@/assets/cat-escritura.jpg";
-import papel from "@/assets/cat-papel.jpg";
 
-export const imagenes: Record<string, string> = {
-  cuadernos,
-  escolares,
-  oficina,
-  carpetas,
-  escritura,
-  papel,
-};
+export const imagenGenerica = cuadernos;
 
-export const imagenDe = (key: string | null) => imagenes[key ?? ""] ?? cuadernos;
+export const imagenDe = (imageUrl: string | null) => imageUrl ?? imagenGenerica;
 
 export const categorias: { id: string; label: string }[] = [
   { id: "todos", label: "Todos" },
-  { id: "cuadernos", label: "Cuadernos y agendas" },
-  { id: "escolares", label: "Útiles escolares" },
-  { id: "escritura", label: "Lápices y esferos" },
-  { id: "papel", label: "Papel y resmas" },
-  { id: "carpetas", label: "Carpetas y archivo" },
-  { id: "oficina", label: "Oficina" },
+  { id: "cuadernos", label: "Cuadernos" },
+  { id: "colores", label: "Colores" },
+  { id: "pegantes", label: "Pegantes" },
+  { id: "lapices", label: "Lápices" },
+  { id: "plumones", label: "Plumones" },
+  { id: "boligrafos", label: "Bolígrafos" },
+  { id: "cintas", label: "Cintas" },
+  { id: "reglas", label: "Reglas" },
+  { id: "fomy", label: "Fomy" },
+  { id: "tajalapices", label: "Tajalápices" },
+  { id: "agendas", label: "Agendas" },
+  { id: "blocks", label: "Blocks" },
+  { id: "borradores", label: "Borradores" },
+  { id: "plastilinas", label: "Plastilinas" },
+  { id: "marcadores", label: "Marcadores" },
+  { id: "temperas", label: "Témperas" },
+  { id: "compases", label: "Compases" },
+  { id: "correctores", label: "Correctores" },
+  { id: "escuadras", label: "Escuadras" },
+  { id: "sets", label: "Sets" },
+  { id: "crayones", label: "Crayones" },
+  { id: "esferos", label: "Esferos" },
+  { id: "cartulinas", label: "Cartulinas" },
+  { id: "papeles", label: "Papeles" },
+  { id: "resaltadores", label: "Resaltadores" },
+  { id: "carpetas", label: "Carpetas" },
+  { id: "estuches", label: "Estuches" },
+  { id: "tijeras", label: "Tijeras" },
+  { id: "archivadores", label: "Archivadores" },
+  { id: "portaminas", label: "Portaminas" },
+  { id: "pinturas", label: "Pinturas" },
+  { id: "curvigrafos", label: "Curvígrafos" },
+  { id: "placas-de-dibujo", label: "Placas de dibujo" },
+  { id: "transportadores", label: "Transportadores" },
+  { id: "folders", label: "Folders" },
+  { id: "kits-de-geometria", label: "Kits de geometría" },
+  { id: "cartucheras", label: "Cartucheras" },
+  { id: "forros", label: "Forros" },
+  { id: "maletas-escolares", label: "Maletas escolares" },
+  { id: "rotuladores", label: "Rotuladores" },
+  { id: "contac", label: "Contac" },
+  { id: "acuarelas", label: "Acuarelas" },
+  { id: "micropuntas", label: "Micropuntas" },
+  { id: "cajas-matematicas", label: "Cajas matemáticas" },
+  { id: "loncheras", label: "Loncheras" },
+  { id: "separadores", label: "Separadores" },
 ];
 
 export const formatoCOP = (valor: number) =>

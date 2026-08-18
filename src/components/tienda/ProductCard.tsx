@@ -13,7 +13,7 @@ import type { Producto } from "@/lib/productos.functions";
 
 export function ProductCard({ producto }: { producto: Producto }) {
   const [cantidad, setCantidad] = useState(1);
-  const img = imagenDe(producto.image_key);
+  const img = imagenDe(producto.image_url);
 
   return (
     <article className="flex flex-col overflow-hidden rounded-3xl border border-brand-navy/10 bg-card shadow-sm transition-shadow hover:shadow-lg">

@@ -16,38 +16,47 @@ export type Database = {
     Tables: {
       products: {
         Row: {
+          brand: string | null
           category: string
           created_at: string
           description: string
           id: string
           image_key: string
+          image_url: string | null
           is_active: boolean
           name: string
           price_cop: number
+          sku: string | null
           sort_order: number
           updated_at: string
         }
         Insert: {
+          brand?: string | null
           category: string
           created_at?: string
           description?: string
           id?: string
           image_key?: string
+          image_url?: string | null
           is_active?: boolean
           name: string
           price_cop: number
+          sku?: string | null
           sort_order?: number
           updated_at?: string
         }
         Update: {
+          brand?: string | null
           category?: string
           created_at?: string
           description?: string
           id?: string
           image_key?: string
+          image_url?: string | null
           is_active?: boolean
           name?: string
           price_cop?: number
+          sku?: string | null
           sort_order?: number
           updated_at?: string
         }
