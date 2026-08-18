@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { MapPin, Phone, Mail, MessageCircle, ExternalLink, Send } from "lucide-react";
 import { sedes, EMAIL, whatsappUrl } from "./data";
+import { enviarMensajeContacto } from "@/lib/contacto.functions";
 
 export function Contacto() {
   const [enviado, setEnviado] = useState(false);
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <section id="contacto" className="mx-auto max-w-6xl px-4 py-16 md:py-24">
@@ -71,19 +74,27 @@ export function Contacto() {
       </div>
 
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           const form = e.currentTarget;
           const datos = new FormData(form);
           const nombre = String(datos.get("nombre") ?? "");
           const correo = String(datos.get("correo") ?? "");
           const mensaje = String(datos.get("mensaje") ?? "");
-          const asunto = encodeURIComponent(`Mensaje de ${nombre} desde la página web`);
-          const cuerpo = encodeURIComponent(
-            `Nombre: ${nombre}\nCorreo: ${correo}\n\n${mensaje}`,
-          );
-          window.location.href = `mailto:${EMAIL}?subject=${asunto}&body=${cuerpo}`;
-          setEnviado(true);
+
+          setError(null);
+          setEnviando(true);
+          try {
+            await enviarMensajeContacto({ data: { nombre, correo, mensaje } });
+            form.reset();
+            setEnviado(true);
+          } catch {
+            setError(
+              `No pudimos enviar tu mensaje. Escríbenos directamente a ${EMAIL} o por WhatsApp.`,
+            );
+          } finally {
+            setEnviando(false);
+          }
         }}
         className="mt-10 rounded-3xl border border-brand-navy/10 bg-card p-6 shadow-sm md:p-8"
       >
@@ -137,15 +148,20 @@ export function Contacto() {
         <div className="mt-6 flex flex-wrap items-center gap-4">
           <button
             type="submit"
-            className="inline-flex items-center gap-2 rounded-full bg-brand-navy px-6 py-3 text-sm font-bold text-secondary-foreground transition-transform hover:scale-[1.03]"
+            disabled={enviando}
+            className="inline-flex items-center gap-2 rounded-full bg-brand-navy px-6 py-3 text-sm font-bold text-secondary-foreground transition-transform hover:scale-[1.03] disabled:opacity-60 disabled:hover:scale-100"
           >
             <Send className="h-4 w-4" aria-hidden="true" />
-            Enviar
+            {enviando ? "Enviando..." : "Enviar"}
           </button>
-          {enviado && (
+          {enviado && !error && (
             <p role="status" className="text-sm font-semibold text-brand-orange">
-              ¡Gracias! Abrimos tu aplicación de correo con el mensaje listo para enviar. Si no se
-              abrió, escríbenos a {EMAIL} o por WhatsApp.
+              ¡Gracias! Recibimos tu mensaje y te responderemos lo antes posible a tu correo.
+            </p>
+          )}
+          {error && (
+            <p role="alert" className="text-sm font-semibold text-destructive">
+              {error}
             </p>
           )}
         </div>
