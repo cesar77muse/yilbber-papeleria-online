@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import cuadernos from "@/assets/cat-cuadernos.jpg";
 import escolares from "@/assets/cat-escolares.jpg";
 import oficina from "@/assets/cat-oficina.jpg";
@@ -21,15 +22,6 @@ const destacadas = [
   },
 ];
 
-const otras = [
-  "Carpetas y archivo",
-  "Lápices y esferos",
-  "Artículos de escritorio",
-  "Papel y resmas",
-  "Materiales para manualidades",
-  "Venta al por mayor para colegios y empresas",
-];
-
 export function Productos() {
   return (
     <section id="productos" className="mx-auto max-w-6xl px-4 py-16 md:py-24">
@@ -42,9 +34,10 @@ export function Productos() {
 
       <div className="mt-10 grid gap-6 md:grid-cols-3">
         {destacadas.map((c) => (
-          <article
+          <Link
             key={c.titulo}
-            className="overflow-hidden rounded-3xl border border-brand-navy/10 bg-card shadow-sm transition-shadow hover:shadow-lg"
+            to="/pedidos"
+            className="block overflow-hidden rounded-3xl border border-brand-navy/10 bg-card shadow-sm transition-shadow hover:shadow-lg"
           >
             <img
               src={c.img}
@@ -58,20 +51,9 @@ export function Productos() {
               <h3 className="text-lg uppercase text-brand-navy">{c.titulo}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{c.texto}</p>
             </div>
-          </article>
+          </Link>
         ))}
       </div>
-
-      <ul className="mt-8 flex flex-wrap gap-3">
-        {otras.map((o) => (
-          <li
-            key={o}
-            className="rounded-full border border-brand-orange/40 bg-accent px-4 py-2 text-sm font-semibold text-brand-navy"
-          >
-            {o}
-          </li>
-        ))}
-      </ul>
 
       <a
         href={whatsappUrl}
