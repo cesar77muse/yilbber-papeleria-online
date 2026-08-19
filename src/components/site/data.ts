@@ -14,7 +14,7 @@ export const sedes = [
       { label: "311 234 7090", tel: "+573112347090" },
       { label: "321 878 6089", tel: "+573218786089" },
     ],
-    maps: "https://www.google.com/maps/search/?api=1&query=Carrera+15+%2317-44+Duitama+Boyaca",
+    maps: "https://www.google.com/maps/search/?api=1&query=Papeleria+Yilbber&query_place_id=0x8e6a3f0d1aea5a43:0x53f1faf5bb85d221",
   },
   {
     nombre: "Sucursal",
