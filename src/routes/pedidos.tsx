@@ -7,11 +7,11 @@ import { Footer } from "@/components/site/Footer";
 import { SearchBar } from "@/components/tienda/SearchBar";
 import { CategoryChips } from "@/components/tienda/CategoryChips";
 import { ProductCard } from "@/components/tienda/ProductCard";
-import { listProductos } from "@/lib/productos.functions";
+import { fetchShopifyProducts } from "@/lib/shopify";
 
 const productosQuery = queryOptions({
-  queryKey: ["productos"],
-  queryFn: () => listProductos(),
+  queryKey: ["shopify-productos"],
+  queryFn: () => fetchShopifyProducts(),
 });
 
 const title = "Pedidos en línea | Papelería Yilbber Duitama";
@@ -54,11 +54,12 @@ function PedidosPage() {
   const filtrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
     return productos.filter((p) => {
-      const okCat = categoria === "todos" || p.category === categoria;
+      const okCat =
+        categoria === "todos" || p.node.productType.toLowerCase() === categoria;
       const okQ =
         q === "" ||
-        p.name.toLowerCase().includes(q) ||
-        (p.description ?? "").toLowerCase().includes(q);
+        p.node.title.toLowerCase().includes(q) ||
+        (p.node.description ?? "").toLowerCase().includes(q);
       return okCat && okQ;
     });
   }, [productos, busqueda, categoria]);
@@ -78,8 +79,8 @@ function PedidosPage() {
         <h1 className="mt-5 text-2xl uppercase text-brand-navy md:text-4xl">Pedidos en línea</h1>
         <div className="mt-2 h-1 w-24 rounded-full bg-brand-orange" />
         <p className="mt-4 max-w-2xl text-base text-muted-foreground">
-          Estos son nuestros productos más pedidos. Busca lo que necesitas, elige la cantidad y muy
-          pronto podrás finalizar tu pedido con cuenta o como invitado.
+          Estos son nuestros productos más pedidos. Busca lo que necesitas, elige la cantidad y
+          finaliza tu compra con cuenta o como invitado en el checkout seguro.
         </p>
 
         <div className="mt-8 space-y-4">
@@ -98,13 +99,15 @@ function PedidosPage() {
           <div className="mt-10 rounded-3xl border-2 border-dashed border-brand-orange/50 p-12 text-center">
             <PackageSearch className="mx-auto h-10 w-10 text-brand-orange/60" aria-hidden="true" />
             <p className="mt-4 text-sm text-muted-foreground">
-              No encontramos productos con esa búsqueda. Escríbenos por WhatsApp y te ayudamos.
+              {productos.length === 0
+                ? "Aún no hay productos publicados en la tienda. Vuelve muy pronto o escríbenos por WhatsApp."
+                : "No encontramos productos con esa búsqueda. Escríbenos por WhatsApp y te ayudamos."}
             </p>
           </div>
         ) : (
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtrados.map((p) => (
-              <ProductCard key={p.id} producto={p} />
+              <ProductCard key={p.node.id} product={p} />
             ))}
           </div>
         )}
