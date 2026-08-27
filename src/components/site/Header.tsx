@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, X, MessageCircle } from "lucide-react";
 import logo from "@/assets/logo-yilbber.png";
+import { CartDrawer } from "@/components/tienda/CartDrawer";
 import { whatsappUrl } from "./data";
 
 const links = [
@@ -36,6 +37,7 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <CartDrawer />
           <a
             href={whatsappUrl}
             target="_blank"
