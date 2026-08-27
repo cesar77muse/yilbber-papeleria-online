@@ -7,11 +7,12 @@ import { Footer } from "@/components/site/Footer";
 import { SearchBar } from "@/components/tienda/SearchBar";
 import { CategoryChips } from "@/components/tienda/CategoryChips";
 import { ProductCard } from "@/components/tienda/ProductCard";
-import { fetchShopifyProducts } from "@/lib/shopify";
+import { listProductos } from "@/lib/productos.functions";
+import { productoAShopify } from "@/lib/catalogo";
 
 const productosQuery = queryOptions({
-  queryKey: ["shopify-productos"],
-  queryFn: () => fetchShopifyProducts(),
+  queryKey: ["catalogo-productos"],
+  queryFn: () => listProductos(),
 });
 
 const title = "Pedidos en línea | Papelería Yilbber Duitama";
@@ -54,12 +55,13 @@ function PedidosPage() {
   const filtrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
     return productos.filter((p) => {
-      const okCat =
-        categoria === "todos" || p.node.productType.toLowerCase() === categoria;
+      const okCat = categoria === "todos" || p.category === categoria;
       const okQ =
         q === "" ||
-        p.node.title.toLowerCase().includes(q) ||
-        (p.node.description ?? "").toLowerCase().includes(q);
+        p.name.toLowerCase().includes(q) ||
+        (p.brand ?? "").toLowerCase().includes(q) ||
+        (p.sku ?? "").toLowerCase().includes(q) ||
+        (p.description ?? "").toLowerCase().includes(q);
       return okCat && okQ;
     });
   }, [productos, busqueda, categoria]);
