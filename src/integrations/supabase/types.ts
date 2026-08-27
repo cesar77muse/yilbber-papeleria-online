@@ -50,8 +50,12 @@ export type Database = {
           is_active: boolean
           name: string
           price_cop: number
+          shopify_handle: string | null
+          shopify_product_id: string | null
+          shopify_variant_id: string | null
           sku: string | null
           sort_order: number
+          synced_at: string | null
           updated_at: string
         }
         Insert: {
@@ -65,8 +69,12 @@ export type Database = {
           is_active?: boolean
           name: string
           price_cop: number
+          shopify_handle?: string | null
+          shopify_product_id?: string | null
+          shopify_variant_id?: string | null
           sku?: string | null
           sort_order?: number
+          synced_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -80,8 +88,12 @@ export type Database = {
           is_active?: boolean
           name?: string
           price_cop?: number
+          shopify_handle?: string | null
+          shopify_product_id?: string | null
+          shopify_variant_id?: string | null
           sku?: string | null
           sort_order?: number
+          synced_at?: string | null
           updated_at?: string
         }
         Relationships: []
