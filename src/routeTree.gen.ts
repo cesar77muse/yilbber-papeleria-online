@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PedidosRouteImport } from './routes/pedidos'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ProductoHandleRouteImport } from './routes/producto.$handle'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,44 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProductoHandleRoute = ProductoHandleRouteImport.update({
+  id: '/producto/$handle',
+  path: '/producto/$handle',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/pedidos': typeof PedidosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/producto/$handle': typeof ProductoHandleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/pedidos': typeof PedidosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/producto/$handle': typeof ProductoHandleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/pedidos': typeof PedidosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/producto/$handle': typeof ProductoHandleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/pedidos' | '/sitemap.xml'
+  fullPaths: '/' | '/pedidos' | '/sitemap.xml' | '/producto/$handle'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/pedidos' | '/sitemap.xml'
-  id: '__root__' | '/' | '/pedidos' | '/sitemap.xml'
+  to: '/' | '/pedidos' | '/sitemap.xml' | '/producto/$handle'
+  id: '__root__' | '/' | '/pedidos' | '/sitemap.xml' | '/producto/$handle'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PedidosRoute: typeof PedidosRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ProductoHandleRoute: typeof ProductoHandleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/producto/$handle': {
+      id: '/producto/$handle'
+      path: '/producto/$handle'
+      fullPath: '/producto/$handle'
+      preLoaderRoute: typeof ProductoHandleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PedidosRoute: PedidosRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ProductoHandleRoute: ProductoHandleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
