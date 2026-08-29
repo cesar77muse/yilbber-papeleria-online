@@ -5,41 +5,64 @@ import { ArrowLeft, Loader2, Minus, Plus, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
-import { fetchProductByHandle, formatoPrecio, type ShopifyProduct } from "@/lib/shopify";
+import { formatoPrecio } from "@/lib/shopify";
+import { getProductoPorHandle } from "@/lib/productos.functions";
+import { productoAShopify } from "@/lib/catalogo";
 import { useCartStore } from "@/stores/cartStore";
 import { imagenGenerica } from "@/components/tienda/images";
 
 const productoQuery = (handle: string) =>
   queryOptions({
-    queryKey: ["shopify-producto", handle],
-    queryFn: () => fetchProductByHandle(handle),
+    queryKey: ["catalogo-producto", handle],
+    queryFn: () => getProductoPorHandle({ data: { handle } }),
   });
 
 export const Route = createFileRoute("/producto/$handle")({
   loader: async ({ context, params }) => {
     const producto = await context.queryClient.ensureQueryData(productoQuery(params.handle));
     if (!producto) throw notFound();
+    return { nombre: producto.name };
   },
-  head: ({ params }) => ({
-    meta: [
-      { title: `Producto | Papelería Yilbber` },
-      { name: "description", content: `Detalle del producto ${params.handle} en Papelería Yilbber, Duitama.` },
-      { property: "og:type", content: "product" },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    const nombre = loaderData?.nombre ?? "Producto";
+    const title = `${nombre} | Papelería Yilbber`;
+    const description = `${nombre} disponible en Papelería Yilbber, Duitama. Agrégalo a tu carrito y finaliza tu compra en línea.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "product" },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+    };
+  },
   component: ProductoPage,
+  errorComponent: ({ error }) => (
+    <div className="mx-auto max-w-2xl px-4 py-24 text-center" role="alert">
+      <h1 className="text-2xl uppercase text-brand-navy">No pudimos cargar el producto</h1>
+      <p className="mt-3 text-sm text-muted-foreground">{error.message}</p>
+    </div>
+  ),
+  notFoundComponent: () => (
+    <div className="mx-auto max-w-2xl px-4 py-24 text-center">
+      <h1 className="text-2xl uppercase text-brand-navy">Producto no encontrado</h1>
+    </div>
+  ),
 });
 
 function ProductoPage() {
   const { handle } = Route.useParams();
-  const { data: node } = useSuspenseQuery(productoQuery(handle));
+  const { data: fila } = useSuspenseQuery(productoQuery(handle));
   const [cantidad, setCantidad] = useState(1);
   const addItem = useCartStore((state) => state.addItem);
   const isLoading = useCartStore((state) => state.isLoading);
 
-  if (!node) return null;
+  if (!fila) return null;
 
-  const producto: ShopifyProduct = { node };
+  const producto = productoAShopify(fila);
+  const { node } = producto;
   const img = node.images.edges[0]?.node.url ?? imagenGenerica;
   const variante = node.variants.edges[0]?.node;
 
