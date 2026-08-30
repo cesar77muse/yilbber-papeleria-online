@@ -31,3 +31,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Archivos retirados a mano (Shopify)
+_to_delete/

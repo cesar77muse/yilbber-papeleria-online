@@ -1,32 +1,30 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, Loader2, Minus, Plus, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Minus, Plus, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
-import { formatoPrecio } from "@/lib/shopify";
-import { getProductoPorHandle } from "@/lib/productos.functions";
-import { productoAShopify } from "@/lib/catalogo";
-import { useCartStore } from "@/stores/cartStore";
-import { imagenGenerica } from "@/components/tienda/images";
+import { getProductoPorSlug } from "@/lib/productos.functions";
+import { useCartStore, MAX_POR_PRODUCTO } from "@/stores/cartStore";
+import { formatoCOP, imagenDe } from "@/components/tienda/images";
 
-const productoQuery = (handle: string) =>
+const productoQuery = (slug: string) =>
   queryOptions({
-    queryKey: ["catalogo-producto", handle],
-    queryFn: () => getProductoPorHandle({ data: { handle } }),
+    queryKey: ["catalogo-producto", slug],
+    queryFn: () => getProductoPorSlug({ data: { slug } }),
   });
 
-export const Route = createFileRoute("/producto/$handle")({
+export const Route = createFileRoute("/producto/$slug")({
   loader: async ({ context, params }) => {
-    const producto = await context.queryClient.ensureQueryData(productoQuery(params.handle));
+    const producto = await context.queryClient.ensureQueryData(productoQuery(params.slug));
     if (!producto) throw notFound();
     return { nombre: producto.name };
   },
   head: ({ loaderData }) => {
     const nombre = loaderData?.nombre ?? "Producto";
     const title = `${nombre} | Papelería Yilbber`;
-    const description = `${nombre} disponible en Papelería Yilbber, Duitama. Agrégalo a tu carrito y finaliza tu compra en línea.`;
+    const description = `${nombre} disponible en Papelería Yilbber, Duitama. Agrégalo a tu pedido y escríbenos para confirmar.`;
     return {
       meta: [
         { title },
@@ -53,31 +51,19 @@ export const Route = createFileRoute("/producto/$handle")({
 });
 
 function ProductoPage() {
-  const { handle } = Route.useParams();
-  const { data: fila } = useSuspenseQuery(productoQuery(handle));
+  const { slug } = Route.useParams();
+  const { data: producto } = useSuspenseQuery(productoQuery(slug));
   const [cantidad, setCantidad] = useState(1);
   const addItem = useCartStore((state) => state.addItem);
-  const isLoading = useCartStore((state) => state.isLoading);
 
-  if (!fila) return null;
+  if (!producto) return null;
 
-  const producto = productoAShopify(fila);
-  const { node } = producto;
-  const img = node.images.edges[0]?.node.url ?? imagenGenerica;
-  const variante = node.variants.edges[0]?.node;
+  const img = imagenDe(producto.image_url);
 
-  const handleAdd = async () => {
-    if (!variante) return;
-    await addItem({
-      product: producto,
-      variantId: variante.id,
-      variantTitle: variante.title,
-      price: variante.price,
-      quantity: cantidad,
-      selectedOptions: variante.selectedOptions ?? [],
-    });
-    toast.success(`${cantidad} × ${node.title} agregado al carrito`, {
-      description: "Abre el carrito para finalizar tu compra.",
+  const handleAdd = () => {
+    addItem(producto, cantidad);
+    toast.success(`${cantidad} × ${producto.name} agregado al carrito`, {
+      description: "Abre el carrito para revisar tu pedido.",
     });
   };
 
@@ -96,22 +82,19 @@ function ProductoPage() {
         <div className="mt-8 grid gap-10 md:grid-cols-2">
           <img
             src={img}
-            alt={node.images.edges[0]?.node.altText ?? node.title}
+            alt={producto.name}
             width={1024}
             height={768}
             className="w-full rounded-3xl object-cover shadow-md"
           />
           <div>
-            <h1 className="text-2xl uppercase text-brand-navy md:text-3xl">{node.title}</h1>
+            <h1 className="text-2xl uppercase text-brand-navy md:text-3xl">{producto.name}</h1>
             <div className="mt-2 h-1 w-24 rounded-full bg-brand-orange" />
             <p className="mt-4 text-base text-muted-foreground">
-              {node.description || "Producto de papelería."}
+              {producto.description || "Producto de papelería."}
             </p>
             <p className="mt-6 font-display text-2xl text-brand-orange">
-              {formatoPrecio(
-                node.priceRange.minVariantPrice.amount,
-                node.priceRange.minVariantPrice.currencyCode,
-              )}
+              {formatoCOP(producto.price_cop)}
             </p>
 
             <div className="mt-6 flex items-center gap-4">
@@ -133,10 +116,10 @@ function ProductoPage() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => setCantidad((c) => Math.min(99, c + 1))}
+                  onClick={() => setCantidad((c) => Math.min(MAX_POR_PRODUCTO, c + 1))}
                   aria-label="Aumentar cantidad"
                   className="p-3 text-brand-navy disabled:opacity-40"
-                  disabled={cantidad >= 99}
+                  disabled={cantidad >= MAX_POR_PRODUCTO}
                 >
                   <Plus className="h-4 w-4" />
                 </button>
@@ -145,14 +128,9 @@ function ProductoPage() {
               <button
                 type="button"
                 onClick={handleAdd}
-                disabled={isLoading || !variante?.availableForSale}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-navy px-6 py-3 text-sm font-bold text-secondary-foreground transition-transform hover:scale-[1.02] disabled:opacity-50"
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-navy px-6 py-3 text-sm font-bold text-secondary-foreground transition-transform hover:scale-[1.02]"
               >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                ) : (
-                  <ShoppingCart className="h-4 w-4" aria-hidden="true" />
-                )}
+                <ShoppingCart className="h-4 w-4" aria-hidden="true" />
                 Agregar al carrito
               </button>
             </div>

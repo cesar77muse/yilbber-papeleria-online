@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Minus, Plus, ZoomIn, ShoppingCart, Loader2 } from "lucide-react";
+import { Minus, Plus, ZoomIn, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -9,31 +9,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { formatoPrecio, type ShopifyProduct } from "@/lib/shopify";
-import { useCartStore } from "@/stores/cartStore";
-import { imagenGenerica } from "./images";
+import type { Producto } from "@/lib/productos.functions";
+import { useCartStore, MAX_POR_PRODUCTO } from "@/stores/cartStore";
+import { formatoCOP, imagenDe } from "./images";
 
-export function ProductCard({ product }: { product: ShopifyProduct }) {
+export function ProductCard({ producto }: { producto: Producto }) {
   const [cantidad, setCantidad] = useState(1);
   const addItem = useCartStore((state) => state.addItem);
-  const isLoading = useCartStore((state) => state.isLoading);
+  const img = imagenDe(producto.image_url);
 
-  const { node } = product;
-  const img = node.images.edges[0]?.node.url ?? imagenGenerica;
-  const variante = node.variants.edges[0]?.node;
-
-  const handleAdd = async () => {
-    if (!variante) return;
-    await addItem({
-      product,
-      variantId: variante.id,
-      variantTitle: variante.title,
-      price: variante.price,
-      quantity: cantidad,
-      selectedOptions: variante.selectedOptions ?? [],
-    });
-    toast.success(`${cantidad} × ${node.title} agregado al carrito`, {
-      description: "Abre el carrito para finalizar tu compra.",
+  const handleAdd = () => {
+    addItem(producto, cantidad);
+    toast.success(`${cantidad} × ${producto.name} agregado al carrito`, {
+      description: "Abre el carrito para revisar tu pedido.",
     });
   };
 
@@ -44,11 +32,11 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
           <button
             type="button"
             className="group relative block w-full cursor-zoom-in"
-            aria-label={`Ampliar imagen de ${node.title}`}
+            aria-label={`Ampliar imagen de ${producto.name}`}
           >
             <img
               src={img}
-              alt={node.images.edges[0]?.node.altText ?? node.title}
+              alt={producto.name}
               loading="lazy"
               width={1024}
               height={768}
@@ -61,38 +49,34 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
           </button>
         </DialogTrigger>
         <DialogContent className="max-w-2xl">
-          <DialogTitle className="text-lg uppercase text-brand-navy">{node.title}</DialogTitle>
-          <DialogDescription>{node.description || "Producto de papelería."}</DialogDescription>
+          <DialogTitle className="text-lg uppercase text-brand-navy">{producto.name}</DialogTitle>
+          <DialogDescription>
+            {producto.description || "Producto de papelería."}
+          </DialogDescription>
           <img
             src={img}
-            alt={node.title}
+            alt={producto.name}
             width={1024}
             height={768}
             className="mt-2 w-full rounded-2xl object-cover"
           />
           <p className="font-display text-xl text-brand-orange">
-            {formatoPrecio(
-              node.priceRange.minVariantPrice.amount,
-              node.priceRange.minVariantPrice.currencyCode,
-            )}
+            {formatoCOP(producto.price_cop)}
           </p>
         </DialogContent>
       </Dialog>
 
       <div className="flex flex-1 flex-col p-4">
         <Link
-          to="/producto/$handle"
-          params={{ handle: node.handle }}
+          to="/producto/$slug"
+          params={{ slug: producto.slug }}
           className="text-sm font-bold uppercase leading-snug text-brand-navy hover:text-brand-orange"
         >
-          {node.title}
+          {producto.name}
         </Link>
-        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{node.description}</p>
+        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{producto.description}</p>
         <p className="mt-3 font-display text-lg text-brand-orange">
-          {formatoPrecio(
-            node.priceRange.minVariantPrice.amount,
-            node.priceRange.minVariantPrice.currencyCode,
-          )}
+          {formatoCOP(producto.price_cop)}
         </p>
 
         <div className="mt-4 flex items-center gap-3">
@@ -100,21 +84,24 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
             <button
               type="button"
               onClick={() => setCantidad((c) => Math.max(1, c - 1))}
-              aria-label={`Disminuir cantidad de ${node.title}`}
+              aria-label={`Disminuir cantidad de ${producto.name}`}
               className="p-2 text-brand-navy disabled:opacity-40"
               disabled={cantidad <= 1}
             >
               <Minus className="h-4 w-4" />
             </button>
-            <span className="min-w-8 text-center text-sm font-bold text-brand-navy" aria-live="polite">
+            <span
+              className="min-w-8 text-center text-sm font-bold text-brand-navy"
+              aria-live="polite"
+            >
               {cantidad}
             </span>
             <button
               type="button"
-              onClick={() => setCantidad((c) => Math.min(99, c + 1))}
-              aria-label={`Aumentar cantidad de ${node.title}`}
+              onClick={() => setCantidad((c) => Math.min(MAX_POR_PRODUCTO, c + 1))}
+              aria-label={`Aumentar cantidad de ${producto.name}`}
               className="p-2 text-brand-navy disabled:opacity-40"
-              disabled={cantidad >= 99}
+              disabled={cantidad >= MAX_POR_PRODUCTO}
             >
               <Plus className="h-4 w-4" />
             </button>
@@ -123,14 +110,9 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
           <button
             type="button"
             onClick={handleAdd}
-            disabled={isLoading || !variante?.availableForSale}
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-navy px-3 py-2.5 text-xs font-bold text-secondary-foreground transition-transform hover:scale-[1.03] disabled:opacity-50"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-navy px-3 py-2.5 text-xs font-bold text-secondary-foreground transition-transform hover:scale-[1.03]"
           >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <ShoppingCart className="h-4 w-4" aria-hidden="true" />
-            )}
+            <ShoppingCart className="h-4 w-4" aria-hidden="true" />
             Agregar
           </button>
         </div>

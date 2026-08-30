@@ -8,7 +8,6 @@ import { SearchBar } from "@/components/tienda/SearchBar";
 import { CategoryChips } from "@/components/tienda/CategoryChips";
 import { ProductCard } from "@/components/tienda/ProductCard";
 import { listProductos } from "@/lib/productos.functions";
-import { productoAShopify } from "@/lib/catalogo";
 
 const productosQuery = queryOptions({
   queryKey: ["catalogo-productos"],
@@ -82,7 +81,7 @@ function PedidosPage() {
         <div className="mt-2 h-1 w-24 rounded-full bg-brand-orange" />
         <p className="mt-4 max-w-2xl text-base text-muted-foreground">
           Estos son nuestros productos más pedidos. Busca lo que necesitas, elige la cantidad y
-          finaliza tu compra con cuenta o como invitado en el checkout seguro.
+          arma tu pedido en el carrito y escríbenos para confirmarlo.
         </p>
 
         <div className="mt-8 space-y-4">
@@ -109,7 +108,7 @@ function PedidosPage() {
         ) : (
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtrados.map((p) => (
-              <ProductCard key={p.id} product={productoAShopify(p)} />
+              <ProductCard key={p.id} producto={p} />
             ))}
           </div>
         )}
