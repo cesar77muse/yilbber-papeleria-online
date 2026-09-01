@@ -8,6 +8,7 @@ export const categorias: { id: string; label: string }[] = [
   { id: "todos", label: "Todos" },
   { id: "cuadernos", label: "Cuadernos" },
   { id: "colores", label: "Colores" },
+  { id: "arte", label: "Arte" },
   { id: "pegantes", label: "Pegantes" },
   { id: "lapices", label: "Lápices" },
   { id: "plumones", label: "Plumones" },

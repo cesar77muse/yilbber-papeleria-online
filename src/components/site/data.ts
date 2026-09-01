@@ -5,6 +5,11 @@ export const WHATSAPP_MSG = encodeURIComponent(
 export const whatsappUrl = `https://wa.me/${WHATSAPP}?text=${WHATSAPP_MSG}`;
 export const EMAIL = "yilbber.gerencia@gmail.com";
 
+// Pago por transferencia Nequi (único medio de pago en línea por ahora).
+export const NEQUI_NUMERO = "3105990632";
+export const NEQUI_NUMERO_VISIBLE = "310 599 0632";
+export const NEQUI_TITULAR = "Papelería Yilbber";
+
 export const sedes = [
   {
     nombre: "Sede principal",

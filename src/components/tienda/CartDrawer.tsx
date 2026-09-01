@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ShoppingCart, Minus, Plus, Trash2, Clock } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ShoppingCart, Minus, Plus, Trash2, ArrowRight } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -117,18 +118,16 @@ export function CartDrawer() {
                   <span className="text-lg font-semibold">Total</span>
                   <span className="text-xl font-bold">{formatoCOP(total)}</span>
                 </div>
-                <button
-                  type="button"
-                  disabled
-                  aria-describedby="checkout-nota"
-                  className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-brand-navy px-6 py-3 text-sm font-bold text-secondary-foreground opacity-50"
+                <Link
+                  to="/checkout"
+                  onClick={() => setIsOpen(false)}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-orange px-6 py-3 text-sm font-bold text-primary-foreground transition-transform hover:scale-[1.02]"
                 >
-                  <Clock className="h-4 w-4" aria-hidden="true" />
-                  Pago en línea — próximamente
-                </button>
-                <p id="checkout-nota" className="text-center text-xs text-muted-foreground">
-                  Aún no tenemos pagos en línea. Escríbenos por WhatsApp con tu pedido y te
-                  confirmamos disponibilidad y forma de pago.
+                  Finalizar compra
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+                <p className="text-center text-xs text-muted-foreground">
+                  Pagas con transferencia Nequi y adjuntas el comprobante. Sin cuenta ni tarjeta.
                 </p>
               </div>
             </>

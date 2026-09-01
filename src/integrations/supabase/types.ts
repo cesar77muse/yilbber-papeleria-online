@@ -38,6 +38,117 @@ export type Database = {
         }
         Relationships: []
       }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          line_total_cop: number
+          name: string
+          order_id: string
+          product_id: string | null
+          quantity: number
+          sku: string | null
+          slug: string | null
+          unit_price_cop: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          line_total_cop: number
+          name: string
+          order_id: string
+          product_id?: string | null
+          quantity: number
+          sku?: string | null
+          slug?: string | null
+          unit_price_cop: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          line_total_cop?: number
+          name?: string
+          order_id?: string
+          product_id?: string | null
+          quantity?: number
+          sku?: string | null
+          slug?: string | null
+          unit_price_cop?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string
+          delivery_address: string | null
+          delivery_method: string
+          id: string
+          notes: string | null
+          order_number: string
+          payment_method: string
+          payment_proof_path: string
+          payment_reference: string | null
+          status: string
+          subtotal_cop: number
+          total_cop: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_email?: string | null
+          customer_name: string
+          customer_phone: string
+          delivery_address?: string | null
+          delivery_method?: string
+          id?: string
+          notes?: string | null
+          order_number?: string
+          payment_method?: string
+          payment_proof_path: string
+          payment_reference?: string | null
+          status?: string
+          subtotal_cop: number
+          total_cop: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string
+          delivery_address?: string | null
+          delivery_method?: string
+          id?: string
+          notes?: string | null
+          order_number?: string
+          payment_method?: string
+          payment_proof_path?: string
+          payment_reference?: string | null
+          status?: string
+          subtotal_cop?: number
+          total_cop?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           brand: string | null
