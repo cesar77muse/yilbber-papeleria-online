@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { MINIMO_DOMICILIO_COP } from "@/components/site/data";
 
 /**
  * Cierre del carrito con pago por transferencia Nequi.
@@ -65,6 +66,13 @@ export type PedidoCreado = {
   totalCop: number;
 };
 
+const formatoCOP = (valor: number) =>
+  new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
+  }).format(valor);
+
 /** base64 -> bytes sin depender de Buffer (el build de producción corre en Workers). */
 function decodificarBase64(base64: string): Uint8Array<ArrayBuffer> {
   const binario = atob(base64);
@@ -110,6 +118,14 @@ export const crearPedido = createServerFn({ method: "POST" })
     });
 
     const total = lineas.reduce((suma, l) => suma + l.line_total_cop, 0);
+
+    // El domicilio en Duitama sólo aplica a partir del mínimo: se valida acá
+    // con el total real (precios de la base), no con lo que mande el cliente.
+    if (data.cliente.entrega === "domicilio" && total < MINIMO_DOMICILIO_COP) {
+      throw new Error(
+        `El domicilio en Duitama es para pedidos desde ${formatoCOP(MINIMO_DOMICILIO_COP)}. Tu pedido suma ${formatoCOP(total)}: agrega más productos o recoge en la papelería.`,
+      );
+    }
 
     // 2. El comprobante va a un bucket privado; en la tabla sólo queda la ruta.
     const bytes = decodificarBase64(data.comprobante.base64);

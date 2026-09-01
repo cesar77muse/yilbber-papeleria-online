@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import {
+  MINIMO_DOMICILIO_COP,
   NEQUI_NUMERO,
   NEQUI_NUMERO_VISIBLE,
   NEQUI_TITULAR,
@@ -94,6 +95,18 @@ function CheckoutPage() {
   const total = totalCOP(items);
   const unidades = totalUnidades(items);
 
+  const faltaParaDomicilio = Math.max(0, MINIMO_DOMICILIO_COP - total);
+  const domicilioDisponible = faltaParaDomicilio === 0;
+
+  // Si el pedido baja del mínimo (p. ej. quitan un producto en el resumen)
+  // mientras "domicilio" está elegido, volvemos a "recoger" para no dejar
+  // seleccionada una opción que el backend va a rechazar.
+  useEffect(() => {
+    if (!domicilioDisponible) {
+      setDatos((d) => (d.entrega === "domicilio" ? { ...d, entrega: "recoger" } : d));
+    }
+  }, [domicilioDisponible]);
+
   // La miniatura es un objectURL: hay que soltarla al cambiar de archivo.
   useEffect(() => {
     const url = comprobante?.previewUrl;
@@ -116,6 +129,8 @@ function CheckoutPage() {
       nuevos.correo = "Ese correo no parece válido";
     if (datos.entrega === "domicilio" && datos.direccion.trim().length < 5)
       nuevos.direccion = "Escribe la dirección de entrega";
+    if (datos.entrega === "domicilio" && !domicilioDisponible)
+      nuevos.entrega = `El domicilio es para pedidos desde ${formatoCOP(MINIMO_DOMICILIO_COP)}`;
     setErrores(nuevos);
     return Object.keys(nuevos).length === 0;
   };
@@ -301,37 +316,81 @@ function CheckoutPage() {
                             {
                               id: "domicilio",
                               titulo: "Domicilio en Duitama",
-                              detalle: "Coordinamos el envío contigo",
+                              detalle: domicilioDisponible
+                                ? "Coordinamos el envío contigo"
+                                : `Pedido mínimo ${formatoCOP(MINIMO_DOMICILIO_COP)}`,
                             },
                           ] as const
-                        ).map((opcion) => (
-                          <label
-                            key={opcion.id}
-                            className={`cursor-pointer rounded-2xl border p-4 transition-colors ${
-                              datos.entrega === opcion.id
-                                ? "border-brand-orange bg-brand-orange/5"
-                                : "border-input hover:border-brand-navy/30"
-                            }`}
-                          >
-                            <span className="flex items-center gap-2">
-                              <input
-                                type="radio"
-                                name="entrega"
-                                value={opcion.id}
-                                checked={datos.entrega === opcion.id}
-                                onChange={() => actualizar("entrega", opcion.id)}
-                                className="accent-brand-orange"
-                              />
-                              <span className="text-sm font-bold text-brand-navy">
-                                {opcion.titulo}
+                        ).map((opcion) => {
+                          const bloqueada = opcion.id === "domicilio" && !domicilioDisponible;
+                          return (
+                            <label
+                              key={opcion.id}
+                              aria-disabled={bloqueada}
+                              className={`rounded-2xl border p-4 transition-colors ${
+                                bloqueada
+                                  ? "cursor-not-allowed border-input bg-muted/40 opacity-70"
+                                  : "cursor-pointer " +
+                                    (datos.entrega === opcion.id
+                                      ? "border-brand-orange bg-brand-orange/5"
+                                      : "border-input hover:border-brand-navy/30")
+                              }`}
+                            >
+                              <span className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="entrega"
+                                  value={opcion.id}
+                                  checked={datos.entrega === opcion.id}
+                                  disabled={bloqueada}
+                                  onChange={() => actualizar("entrega", opcion.id)}
+                                  className="accent-brand-orange"
+                                />
+                                <span className="text-sm font-bold text-brand-navy">
+                                  {opcion.titulo}
+                                </span>
                               </span>
-                            </span>
-                            <span className="mt-1 block pl-6 text-xs text-muted-foreground">
-                              {opcion.detalle}
-                            </span>
-                          </label>
-                        ))}
+                              <span className="mt-1 block pl-6 text-xs text-muted-foreground">
+                                {opcion.detalle}
+                              </span>
+                              {opcion.id === "domicilio" && (
+                                <div className="mt-3 pl-6">
+                                  <div
+                                    className="h-1.5 w-full overflow-hidden rounded-full bg-brand-navy/10"
+                                    role="progressbar"
+                                    aria-valuenow={Math.min(total, MINIMO_DOMICILIO_COP)}
+                                    aria-valuemin={0}
+                                    aria-valuemax={MINIMO_DOMICILIO_COP}
+                                    aria-label="Progreso hacia el mínimo para domicilio"
+                                  >
+                                    <div
+                                      className={`h-full rounded-full transition-all ${
+                                        domicilioDisponible ? "bg-brand-orange" : "bg-brand-orange/60"
+                                      }`}
+                                      style={{
+                                        width: `${Math.min(100, (total / MINIMO_DOMICILIO_COP) * 100)}%`,
+                                      }}
+                                    />
+                                  </div>
+                                  <p className="mt-1.5 text-xs font-semibold">
+                                    {domicilioDisponible ? (
+                                      <span className="text-brand-orange">
+                                        Ya puedes pedir domicilio en Duitama
+                                      </span>
+                                    ) : (
+                                      <span className="text-muted-foreground">
+                                        Agrega {formatoCOP(faltaParaDomicilio)} más para desbloquear
+                                        el domicilio
+                                      </span>
+                                    )}
+                                  </p>
+                                </div>
+                              )}
+                            </label>
+                          );
+                        })}
                       </div>
+                      {errores.entrega && <ErrorCampo>{errores.entrega}</ErrorCampo>}
                     </fieldset>
 
                     {datos.entrega === "domicilio" && (

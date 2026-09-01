@@ -10,6 +10,11 @@ export const NEQUI_NUMERO = "3105990632";
 export const NEQUI_NUMERO_VISIBLE = "310 599 0632";
 export const NEQUI_TITULAR = "Papelería Yilbber";
 
+// Pedido mínimo para ofrecer domicilio en Duitama. Se valida en el
+// frontend (checkout) y de nuevo en el backend (pedidos.functions.ts),
+// que es la fuente de verdad porque recalcula el total con precios reales.
+export const MINIMO_DOMICILIO_COP = 50000;
+
 export const sedes = [
   {
     nombre: "Sede principal",
