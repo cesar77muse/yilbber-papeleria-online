@@ -5,7 +5,8 @@
       "name": "yilbber-dev",
       "runtimeExecutable": "/Users/cesarhernandez/.nvm/versions/node/v22.23.2/bin/node",
       "runtimeArgs": ["node_modules/vite/bin/vite.js", "dev"],
-      "port": 8080
+      "port": 8080,
+      "autoPort": true
     }
   ]
 }

@@ -86,7 +86,7 @@ function PedidosPage() {
 
         <div className="mt-8 space-y-4">
           <SearchBar valor={busqueda} onChange={setBusqueda} />
-          <CategoryChips activa={categoria} onChange={setCategoria} />
+          <CategoryChips activa={categoria} onChange={setCategoria} productos={productos} />
         </div>
 
         <h2 className="mt-10 text-xl uppercase text-brand-navy md:text-2xl">
