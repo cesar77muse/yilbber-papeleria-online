@@ -54,13 +54,12 @@ export const iniciarPagoEpayco = createServerFn({ method: "POST" })
       lineas,
     );
 
-    // Las URLs salen del origen que atendió la petición. ePayco rechaza las de
-    // localhost, así que en desarrollo apuntan al dominio público; para
-    // verificar en local, abrir /pago/respuesta?ref_payco=... en localhost.
+    // Las URLs de ePayco van siempre al dominio público canónico: ePayco rechaza
+    // las de localhost, y un webhook que pase por una redirección (p. ej. desde
+    // *.lovable.app) llega sin los datos del POST. Para verificar un pago hecho
+    // desde local, abrir /pago/respuesta?ref_payco=... en localhost.
     const request = getRequest();
-    const origenPeticion = new URL(request.url);
-    const esLocal = /^(localhost|127\.|10\.|192\.168\.|\[::1\])/.test(origenPeticion.hostname);
-    const origen = esLocal ? SITE_URL : origenPeticion.origin;
+    const origen = SITE_URL;
     const ip =
       request.headers.get("cf-connecting-ip") ||
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -87,6 +86,12 @@ export const iniciarPagoEpayco = createServerFn({ method: "POST" })
       throw e;
     }
   });
+
+/** Si el pago en línea está disponible y si está en modo pruebas (sandbox). */
+export const consultarModoPago = createServerFn({ method: "GET" }).handler(async () => {
+  const { estadoEpayco } = await import("@/lib/epayco.server");
+  return estadoEpayco();
+});
 
 const verificacionSchema = z.object({
   ref: z

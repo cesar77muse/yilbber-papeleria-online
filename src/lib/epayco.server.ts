@@ -44,17 +44,35 @@ function leerConfig(): Config {
     );
   }
 
+  // El modo se exige explícito: sin EPAYCO_TEST=true|false no se cobra nada, para
+  // que una prueba nunca termine en cobro real ni producción quede en pruebas.
+  const modo = leer("EPAYCO_TEST").toLowerCase();
+  if (modo !== "true" && modo !== "false") {
+    console.error('[ePayco] EPAYCO_TEST debe ser "true" (pruebas) o "false" (producción)');
+    throw new Error(
+      "El pago en línea no está disponible en este momento. Intenta pagar por Nequi.",
+    );
+  }
+
   return {
     custId: llaves.EPAYCO_CUST_ID,
     pKey: llaves.EPAYCO_P_KEY,
     publicKey: llaves.EPAYCO_PUBLIC_KEY,
     privateKey: llaves.EPAYCO_PRIVATE_KEY,
-    // Producción salvo que el modo prueba se pida explícitamente.
-    test: leer("EPAYCO_TEST").toLowerCase() === "true",
+    test: modo === "true",
   };
 }
 
 export const modoPrueba = () => leerConfig().test;
+
+/** Para el checkout: si el pago en línea está configurado y en qué modo. Nunca lanza. */
+export function estadoEpayco(): { disponible: boolean; prueba: boolean } {
+  try {
+    return { disponible: true, prueba: leerConfig().test };
+  } catch {
+    return { disponible: false, prueba: false };
+  }
+}
 
 async function login(config: Config): Promise<string> {
   const res = await fetch(`${API_URL}/login`, {
@@ -219,6 +237,8 @@ export type PagoAplicado = {
   totalCop: number;
   status: string;
   respuesta: string;
+  /** Transacción del sandbox de ePayco: no movió dinero real. */
+  prueba: boolean;
 };
 
 /**
@@ -246,6 +266,7 @@ export async function aplicarResultado(r: ResultadoEpayco): Promise<PagoAplicado
     totalCop: pedido.total_cop,
     status: pedido.status,
     respuesta: r.respuesta,
+    prueba: r.prueba,
   };
 
   if (r.moneda !== "COP" || r.monto !== pedido.total_cop) {

@@ -30,7 +30,7 @@ import {
 import { formatoCOP, imagenDe } from "@/components/tienda/images";
 import { useCartStore, totalCOP, totalUnidades, type CartItem } from "@/stores/cartStore";
 import { crearPedido, type PedidoCreado } from "@/lib/pedidos.functions";
-import { iniciarPagoEpayco, type SesionEpayco } from "@/lib/pagos.functions";
+import { consultarModoPago, iniciarPagoEpayco, type SesionEpayco } from "@/lib/pagos.functions";
 import { abrirCheckoutEpayco } from "@/lib/epayco-checkout";
 import { prepararComprobante, TIPOS_ACEPTADOS, type ComprobantePreparado } from "@/lib/comprobante";
 
@@ -107,6 +107,14 @@ function CheckoutPage() {
   const [sesion, setSesion] = useState<SesionEpayco | null>(null);
   const [iniciandoPago, setIniciandoPago] = useState(false);
   const [errorPago, setErrorPago] = useState<string | null>(null);
+  const [modoPago, setModoPago] = useState<{ disponible: boolean; prueba: boolean } | null>(null);
+
+  // Si el pago en línea está configurado en el servidor y si está en modo pruebas.
+  useEffect(() => {
+    consultarModoPago()
+      .then(setModoPago)
+      .catch(() => setModoPago({ disponible: false, prueba: false }));
+  }, []);
 
   const total = totalCOP(items);
   const unidades = totalUnidades(items);
@@ -114,8 +122,10 @@ function CheckoutPage() {
   const faltaParaDomicilio = Math.max(0, MINIMO_DOMICILIO_COP - total);
   const domicilioDisponible = faltaParaDomicilio === 0;
 
-  // ePayco sólo cobra entre su mínimo y su máximo; fuera de ese rango queda Nequi.
-  const pagoEnLineaDisponible = total >= EPAYCO_MINIMO_COP && total <= EPAYCO_MAXIMO_COP;
+  // ePayco sólo cobra entre su mínimo y su máximo; fuera de ese rango, o si el
+  // servidor no tiene las llaves, queda Nequi.
+  const montoEnRango = total >= EPAYCO_MINIMO_COP && total <= EPAYCO_MAXIMO_COP;
+  const pagoEnLineaDisponible = montoEnRango && modoPago?.disponible !== false;
   const metodoElegido: Metodo = pagoEnLineaDisponible ? metodo : "nequi";
   const pasos = PASOS[metodoElegido];
 
@@ -510,9 +520,12 @@ function CheckoutPage() {
                             {
                               id: "epayco",
                               titulo: "Pago en línea",
-                              detalle: pagoEnLineaDisponible
-                                ? "Tarjeta crédito, débito o PSE"
-                                : `Para pedidos desde ${formatoCOP(EPAYCO_MINIMO_COP)}`,
+                              detalle:
+                                modoPago?.disponible === false
+                                  ? "No disponible en este momento"
+                                  : montoEnRango
+                                    ? "Tarjeta crédito, débito o PSE"
+                                    : `Para pedidos entre ${formatoCOP(EPAYCO_MINIMO_COP)} y ${formatoCOP(EPAYCO_MAXIMO_COP)}`,
                               Icono: CreditCard,
                             },
                             {
@@ -582,6 +595,12 @@ function CheckoutPage() {
                             <Lock className="h-3.5 w-3.5" aria-hidden="true" />
                             Los datos de tu tarjeta los maneja ePayco, no la papelería
                           </p>
+                          {modoPago?.prueba && (
+                            <p className="mt-4 rounded-2xl bg-amber-100 px-3 py-2 text-xs font-bold text-amber-900">
+                              Modo pruebas: este pago es simulado y no cobra dinero real. Usa las
+                              tarjetas de prueba de ePayco.
+                            </p>
+                          )}
                         </div>
 
                         {errorPago && (
