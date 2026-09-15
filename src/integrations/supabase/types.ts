@@ -103,9 +103,13 @@ export type Database = {
           id: string
           notes: string | null
           order_number: string
+          paid_at: string | null
           payment_method: string
-          payment_proof_path: string
+          payment_proof_path: string | null
           payment_reference: string | null
+          payment_response: string | null
+          payment_test: boolean
+          payment_transaction_id: string | null
           status: string
           subtotal_cop: number
           total_cop: number
@@ -121,9 +125,13 @@ export type Database = {
           id?: string
           notes?: string | null
           order_number?: string
+          paid_at?: string | null
           payment_method?: string
-          payment_proof_path: string
+          payment_proof_path?: string | null
           payment_reference?: string | null
+          payment_response?: string | null
+          payment_test?: boolean
+          payment_transaction_id?: string | null
           status?: string
           subtotal_cop: number
           total_cop: number
@@ -139,9 +147,13 @@ export type Database = {
           id?: string
           notes?: string | null
           order_number?: string
+          paid_at?: string | null
           payment_method?: string
-          payment_proof_path?: string
+          payment_proof_path?: string | null
           payment_reference?: string | null
+          payment_response?: string | null
+          payment_test?: boolean
+          payment_transaction_id?: string | null
           status?: string
           subtotal_cop?: number
           total_cop?: number

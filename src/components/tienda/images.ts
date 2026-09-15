@@ -53,6 +53,16 @@ export const categorias: { id: string; label: string }[] = [
   { id: "cajas-matematicas", label: "Cajas matemáticas" },
   { id: "loncheras", label: "Loncheras" },
   { id: "separadores", label: "Separadores" },
+  { id: "pliegos", label: "Pliegos" },
+  { id: "calculadoras", label: "Calculadoras" },
+  { id: "tintas", label: "Tintas" },
+  { id: "rollos", label: "Rollos" },
+  { id: "oficina", label: "Oficina" },
+  { id: "factureros", label: "Factureros" },
+  { id: "talonarios", label: "Talonarios" },
+  { id: "planilleros", label: "Planilleros" },
+  { id: "didacticos", label: "Didácticos" },
+  { id: "tableros", label: "Tableros" },
 ];
 
 export const formatoCOP = (valor: number) =>

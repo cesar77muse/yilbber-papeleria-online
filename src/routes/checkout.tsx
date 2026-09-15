@@ -6,16 +6,21 @@ import {
   Check,
   CircleCheck,
   Copy,
+  CreditCard,
   ImageUp,
   Loader2,
+  Lock,
   MessageCircle,
   ShoppingCart,
+  Smartphone,
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import {
+  EPAYCO_MAXIMO_COP,
+  EPAYCO_MINIMO_COP,
   MINIMO_DOMICILIO_COP,
   NEQUI_NUMERO,
   NEQUI_NUMERO_VISIBLE,
@@ -25,11 +30,9 @@ import {
 import { formatoCOP, imagenDe } from "@/components/tienda/images";
 import { useCartStore, totalCOP, totalUnidades, type CartItem } from "@/stores/cartStore";
 import { crearPedido, type PedidoCreado } from "@/lib/pedidos.functions";
-import {
-  prepararComprobante,
-  TIPOS_ACEPTADOS,
-  type ComprobantePreparado,
-} from "@/lib/comprobante";
+import { iniciarPagoEpayco, type SesionEpayco } from "@/lib/pagos.functions";
+import { abrirCheckoutEpayco } from "@/lib/epayco-checkout";
+import { prepararComprobante, TIPOS_ACEPTADOS, type ComprobantePreparado } from "@/lib/comprobante";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -61,11 +64,20 @@ const DATOS_INICIALES: Datos = {
   notas: "",
 };
 
-const PASOS = [
-  { n: 1, label: "Tus datos" },
-  { n: 2, label: "Pago Nequi" },
-  { n: 3, label: "Comprobante" },
-] as const;
+type Metodo = "epayco" | "nequi";
+
+// Con ePayco el pago termina en su checkout; con Nequi falta adjuntar el comprobante.
+const PASOS: Record<Metodo, { n: 1 | 2 | 3; label: string }[]> = {
+  epayco: [
+    { n: 1, label: "Tus datos" },
+    { n: 2, label: "Pago" },
+  ],
+  nequi: [
+    { n: 1, label: "Tus datos" },
+    { n: 2, label: "Pago" },
+    { n: 3, label: "Comprobante" },
+  ],
+};
 
 const inputClass =
   "mt-1.5 w-full rounded-2xl border border-input bg-background px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/30";
@@ -91,12 +103,27 @@ function CheckoutPage() {
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
   const [pedido, setPedido] = useState<PedidoCreado | null>(null);
   const inputArchivo = useRef<HTMLInputElement>(null);
+  const [metodo, setMetodo] = useState<Metodo>("epayco");
+  const [sesion, setSesion] = useState<SesionEpayco | null>(null);
+  const [iniciandoPago, setIniciandoPago] = useState(false);
+  const [errorPago, setErrorPago] = useState<string | null>(null);
 
   const total = totalCOP(items);
   const unidades = totalUnidades(items);
 
   const faltaParaDomicilio = Math.max(0, MINIMO_DOMICILIO_COP - total);
   const domicilioDisponible = faltaParaDomicilio === 0;
+
+  // ePayco sólo cobra entre su mínimo y su máximo; fuera de ese rango queda Nequi.
+  const pagoEnLineaDisponible = total >= EPAYCO_MINIMO_COP && total <= EPAYCO_MAXIMO_COP;
+  const metodoElegido: Metodo = pagoEnLineaDisponible ? metodo : "nequi";
+  const pasos = PASOS[metodoElegido];
+
+  // La sesión de ePayco va atada a un pedido ya guardado con estos datos y
+  // productos: si cambian, al pagar se crea otra.
+  useEffect(() => {
+    setSesion(null);
+  }, [items, datos]);
 
   // Si el pedido baja del mínimo (p. ej. quitan un producto en el resumen)
   // mientras "domicilio" está elegido, volvemos a "recoger" para no dejar
@@ -150,6 +177,41 @@ function CheckoutPage() {
     }
   };
 
+  const clienteParaEnviar = () => ({
+    nombre: datos.nombre.trim(),
+    telefono: datos.telefono.trim(),
+    correo: datos.correo.trim(),
+    entrega: datos.entrega,
+    direccion: datos.direccion.trim(),
+    notas: datos.notas.trim(),
+  });
+  const itemsParaEnviar = () => items.map((i) => ({ id: i.id, quantity: i.quantity }));
+
+  const pagarEnLinea = async () => {
+    if (iniciandoPago) return;
+    setIniciandoPago(true);
+    setErrorPago(null);
+    try {
+      // Si el cliente cerró el checkout y vuelve a intentar, se reabre la misma
+      // sesión en lugar de crear otro pedido.
+      const actual =
+        sesion ??
+        (await iniciarPagoEpayco({
+          data: { cliente: clienteParaEnviar(), items: itemsParaEnviar() },
+        }));
+      setSesion(actual);
+      await abrirCheckoutEpayco(actual.sessionId);
+    } catch (e) {
+      setErrorPago(
+        e instanceof Error && e.message
+          ? e.message
+          : "No pudimos abrir el pago en línea. Intenta de nuevo o paga por Nequi.",
+      );
+    } finally {
+      setIniciandoPago(false);
+    }
+  };
+
   const enviar = async () => {
     if (!comprobante || enviando) return;
     setEnviando(true);
@@ -157,15 +219,8 @@ function CheckoutPage() {
     try {
       const creado = await crearPedido({
         data: {
-          cliente: {
-            nombre: datos.nombre.trim(),
-            telefono: datos.telefono.trim(),
-            correo: datos.correo.trim(),
-            entrega: datos.entrega,
-            direccion: datos.direccion.trim(),
-            notas: datos.notas.trim(),
-          },
-          items: items.map((i) => ({ id: i.id, quantity: i.quantity })),
+          cliente: clienteParaEnviar(),
+          items: itemsParaEnviar(),
           referencia: referencia.trim(),
           comprobante: { tipo: comprobante.tipo, base64: comprobante.base64 },
         },
@@ -199,7 +254,9 @@ function CheckoutPage() {
         {pedido ? (
           <PedidoConfirmado pedido={pedido} datos={datos} />
         ) : !hidratado ? (
-          <div className="py-24 text-center text-sm text-muted-foreground">Cargando tu carrito…</div>
+          <div className="py-24 text-center text-sm text-muted-foreground">
+            Cargando tu carrito…
+          </div>
         ) : items.length === 0 ? (
           <CarritoVacio />
         ) : (
@@ -212,11 +269,13 @@ function CheckoutPage() {
               Seguir comprando
             </Link>
 
-            <h1 className="mt-5 text-2xl uppercase text-brand-navy md:text-4xl">Finalizar pedido</h1>
+            <h1 className="mt-5 text-2xl uppercase text-brand-navy md:text-4xl">
+              Finalizar pedido
+            </h1>
             <div className="mt-2 h-1 w-24 rounded-full bg-brand-orange" />
 
             <ol className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2" aria-label="Pasos">
-              {PASOS.map((p, i) => (
+              {pasos.map((p, i) => (
                 <li key={p.n} className="flex items-center gap-3">
                   <span
                     aria-current={paso === p.n ? "step" : undefined}
@@ -233,8 +292,11 @@ function CheckoutPage() {
                     </span>
                     {p.label}
                   </span>
-                  {i < PASOS.length - 1 && (
-                    <span className="hidden h-px w-6 bg-brand-navy/20 sm:block" aria-hidden="true" />
+                  {i < pasos.length - 1 && (
+                    <span
+                      className="hidden h-px w-6 bg-brand-navy/20 sm:block"
+                      aria-hidden="true"
+                    />
                   )}
                 </li>
               ))}
@@ -365,7 +427,9 @@ function CheckoutPage() {
                                   >
                                     <div
                                       className={`h-full rounded-full transition-all ${
-                                        domicilioDisponible ? "bg-brand-orange" : "bg-brand-orange/60"
+                                        domicilioDisponible
+                                          ? "bg-brand-orange"
+                                          : "bg-brand-orange/60"
                                       }`}
                                       style={{
                                         width: `${Math.min(100, (total / MINIMO_DOMICILIO_COP) * 100)}%`,
@@ -437,64 +501,186 @@ function CheckoutPage() {
 
                 {paso === 2 && (
                   <div>
-                    <h2 className="text-lg uppercase text-brand-navy">Paga con Nequi</h2>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Transfiere el total del pedido a nuestra cuenta Nequi y guarda el pantallazo
-                      del comprobante.
-                    </p>
+                    <h2 className="text-lg uppercase text-brand-navy">¿Cómo quieres pagar?</h2>
+                    <fieldset className="mt-4">
+                      <legend className="sr-only">Medio de pago</legend>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {(
+                          [
+                            {
+                              id: "epayco",
+                              titulo: "Pago en línea",
+                              detalle: pagoEnLineaDisponible
+                                ? "Tarjeta crédito, débito o PSE"
+                                : `Para pedidos desde ${formatoCOP(EPAYCO_MINIMO_COP)}`,
+                              Icono: CreditCard,
+                            },
+                            {
+                              id: "nequi",
+                              titulo: "Transferencia Nequi",
+                              detalle: "Transfieres y adjuntas el comprobante",
+                              Icono: Smartphone,
+                            },
+                          ] as const
+                        ).map((opcion) => {
+                          const bloqueada = opcion.id === "epayco" && !pagoEnLineaDisponible;
+                          return (
+                            <label
+                              key={opcion.id}
+                              aria-disabled={bloqueada}
+                              className={`rounded-2xl border p-4 transition-colors ${
+                                bloqueada
+                                  ? "cursor-not-allowed border-input bg-muted/40 opacity-70"
+                                  : "cursor-pointer " +
+                                    (metodoElegido === opcion.id
+                                      ? "border-brand-orange bg-brand-orange/5"
+                                      : "border-input hover:border-brand-navy/30")
+                              }`}
+                            >
+                              <span className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="metodo"
+                                  value={opcion.id}
+                                  checked={metodoElegido === opcion.id}
+                                  disabled={bloqueada}
+                                  onChange={() => {
+                                    setMetodo(opcion.id);
+                                    setErrorPago(null);
+                                  }}
+                                  className="accent-brand-orange"
+                                />
+                                <opcion.Icono
+                                  className="h-4 w-4 text-brand-orange"
+                                  aria-hidden="true"
+                                />
+                                <span className="text-sm font-bold text-brand-navy">
+                                  {opcion.titulo}
+                                </span>
+                              </span>
+                              <span className="mt-1 block pl-6 text-xs text-muted-foreground">
+                                {opcion.detalle}
+                              </span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </fieldset>
 
-                    <div className="mt-6 rounded-3xl border-2 border-dashed border-brand-orange/50 bg-brand-orange/5 p-6 text-center">
-                      <p className="text-xs font-bold uppercase tracking-wide text-brand-navy/70">
-                        Nequi a nombre de {NEQUI_TITULAR}
-                      </p>
-                      <p className="mt-2 font-display text-3xl text-brand-navy md:text-4xl">
-                        {NEQUI_NUMERO_VISIBLE}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={copiarNequi}
-                        className="mt-3 inline-flex items-center gap-2 rounded-full border-2 border-brand-navy px-4 py-2 text-xs font-bold text-brand-navy transition-colors hover:bg-brand-navy hover:text-secondary-foreground"
-                      >
-                        <Copy className="h-4 w-4" aria-hidden="true" />
-                        Copiar número
-                      </button>
-                      <p className="mt-5 text-sm text-muted-foreground">Valor a transferir</p>
-                      <p className="font-display text-2xl text-brand-orange">{formatoCOP(total)}</p>
-                    </div>
+                    {metodoElegido === "epayco" ? (
+                      <div className="mt-6">
+                        <div className="rounded-3xl border-2 border-dashed border-brand-orange/50 bg-brand-orange/5 p-6 text-center">
+                          <p className="text-sm text-muted-foreground">Valor a pagar</p>
+                          <p className="font-display text-3xl text-brand-orange">
+                            {formatoCOP(total)}
+                          </p>
+                          <p className="mt-3 text-sm text-muted-foreground">
+                            Se abre el pago seguro de ePayco. Ahí eliges tarjeta crédito, débito o
+                            PSE, y al terminar vuelves aquí con la confirmación de tu pedido.
+                          </p>
+                          <p className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-navy/70">
+                            <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+                            Los datos de tu tarjeta los maneja ePayco, no la papelería
+                          </p>
+                        </div>
 
-                    <ol className="mt-6 space-y-3 text-sm text-muted-foreground">
-                      {[
-                        `Abre tu app Nequi y envía ${formatoCOP(total)} al número ${NEQUI_NUMERO_VISIBLE}.`,
-                        "Toma un pantallazo del comprobante donde se vea el valor y la fecha.",
-                        "Vuelve aquí y adjunta el pantallazo para confirmar tu pedido.",
-                      ].map((texto, i) => (
-                        <li key={texto} className="flex gap-3">
-                          <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-navy text-[11px] font-bold text-secondary-foreground">
-                            {i + 1}
-                          </span>
-                          <span>{texto}</span>
-                        </li>
-                      ))}
-                    </ol>
+                        {errorPago && (
+                          <p
+                            role="alert"
+                            className="mt-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+                          >
+                            {errorPago}
+                          </p>
+                        )}
 
-                    <div className="mt-6 flex flex-wrap gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setPaso(1)}
-                        className="inline-flex items-center gap-2 rounded-full border-2 border-brand-navy px-6 py-3 text-sm font-bold text-brand-navy transition-colors hover:bg-brand-navy hover:text-secondary-foreground"
-                      >
-                        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                        Volver
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPaso(3)}
-                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-orange px-6 py-3 text-sm font-bold text-primary-foreground transition-transform hover:scale-[1.02] sm:flex-none"
-                      >
-                        Ya transferí, adjuntar comprobante
-                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                      </button>
-                    </div>
+                        <div className="mt-6 flex flex-wrap gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setPaso(1)}
+                            disabled={iniciandoPago}
+                            className="inline-flex items-center gap-2 rounded-full border-2 border-brand-navy px-6 py-3 text-sm font-bold text-brand-navy transition-colors hover:bg-brand-navy hover:text-secondary-foreground disabled:opacity-50"
+                          >
+                            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                            Volver
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void pagarEnLinea()}
+                            disabled={iniciandoPago}
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-orange px-6 py-3 text-sm font-bold text-primary-foreground transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+                          >
+                            {iniciandoPago ? (
+                              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                            ) : (
+                              <CreditCard className="h-4 w-4" aria-hidden="true" />
+                            )}
+                            {iniciandoPago ? "Abriendo pago seguro…" : `Pagar ${formatoCOP(total)}`}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="mt-6 text-sm text-muted-foreground">
+                          Transfiere el total del pedido a nuestra cuenta Nequi y guarda el
+                          pantallazo del comprobante.
+                        </p>
+
+                        <div className="mt-6 rounded-3xl border-2 border-dashed border-brand-orange/50 bg-brand-orange/5 p-6 text-center">
+                          <p className="text-xs font-bold uppercase tracking-wide text-brand-navy/70">
+                            Nequi a nombre de {NEQUI_TITULAR}
+                          </p>
+                          <p className="mt-2 font-display text-3xl text-brand-navy md:text-4xl">
+                            {NEQUI_NUMERO_VISIBLE}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={copiarNequi}
+                            className="mt-3 inline-flex items-center gap-2 rounded-full border-2 border-brand-navy px-4 py-2 text-xs font-bold text-brand-navy transition-colors hover:bg-brand-navy hover:text-secondary-foreground"
+                          >
+                            <Copy className="h-4 w-4" aria-hidden="true" />
+                            Copiar número
+                          </button>
+                          <p className="mt-5 text-sm text-muted-foreground">Valor a transferir</p>
+                          <p className="font-display text-2xl text-brand-orange">
+                            {formatoCOP(total)}
+                          </p>
+                        </div>
+
+                        <ol className="mt-6 space-y-3 text-sm text-muted-foreground">
+                          {[
+                            `Abre tu app Nequi y envía ${formatoCOP(total)} al número ${NEQUI_NUMERO_VISIBLE}.`,
+                            "Toma un pantallazo del comprobante donde se vea el valor y la fecha.",
+                            "Vuelve aquí y adjunta el pantallazo para confirmar tu pedido.",
+                          ].map((texto, i) => (
+                            <li key={texto} className="flex gap-3">
+                              <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-navy text-[11px] font-bold text-secondary-foreground">
+                                {i + 1}
+                              </span>
+                              <span>{texto}</span>
+                            </li>
+                          ))}
+                        </ol>
+
+                        <div className="mt-6 flex flex-wrap gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setPaso(1)}
+                            className="inline-flex items-center gap-2 rounded-full border-2 border-brand-navy px-6 py-3 text-sm font-bold text-brand-navy transition-colors hover:bg-brand-navy hover:text-secondary-foreground"
+                          >
+                            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                            Volver
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPaso(3)}
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-brand-orange px-6 py-3 text-sm font-bold text-primary-foreground transition-transform hover:scale-[1.02] sm:flex-none"
+                          >
+                            Ya transferí, adjuntar comprobante
+                            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
 
@@ -507,8 +693,8 @@ function CheckoutPage() {
                   >
                     <h2 className="text-lg uppercase text-brand-navy">Adjunta tu comprobante</h2>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      Sube el pantallazo de la transferencia Nequi. Un asesor lo verifica y empezamos
-                      a alistar tu pedido.
+                      Sube el pantallazo de la transferencia Nequi. Un asesor lo verifica y
+                      empezamos a alistar tu pedido.
                     </p>
 
                     <input

@@ -15,6 +15,10 @@ export const NEQUI_TITULAR = "Papelería Yilbber";
 // que es la fuente de verdad porque recalcula el total con precios reales.
 export const MINIMO_DOMICILIO_COP = 50000;
 
+/** ePayco sólo acepta transacciones entre $5.000 y $5.000.000 COP. */
+export const EPAYCO_MINIMO_COP = 5000;
+export const EPAYCO_MAXIMO_COP = 5000000;
+
 export const sedes = [
   {
     nombre: "Sede principal",

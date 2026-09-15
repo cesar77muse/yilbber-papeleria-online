@@ -14,7 +14,9 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as PedidosRouteImport } from './routes/pedidos'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as PagoRespuestaRouteImport } from './routes/pago.respuesta'
 import { Route as ProductoSlugRouteImport } from './routes/producto.$slug'
+import { Route as ApiEpaycoConfirmacionRouteImport } from './routes/api/epayco/confirmacion'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -41,9 +43,19 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PagoRespuestaRoute = PagoRespuestaRouteImport.update({
+  id: '/pago/respuesta',
+  path: '/pago/respuesta',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductoSlugRoute = ProductoSlugRouteImport.update({
   id: '/producto/$slug',
   path: '/producto/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiEpaycoConfirmacionRoute = ApiEpaycoConfirmacionRouteImport.update({
+  id: '/api/epayco/confirmacion',
+  path: '/api/epayco/confirmacion',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -53,7 +65,9 @@ export interface FileRoutesByFullPath {
   '/pedidos': typeof PedidosRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/pago/respuesta': typeof PagoRespuestaRoute
   '/producto/$slug': typeof ProductoSlugRoute
+  '/api/epayco/confirmacion': typeof ApiEpaycoConfirmacionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,7 +75,9 @@ export interface FileRoutesByTo {
   '/pedidos': typeof PedidosRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/pago/respuesta': typeof PagoRespuestaRoute
   '/producto/$slug': typeof ProductoSlugRoute
+  '/api/epayco/confirmacion': typeof ApiEpaycoConfirmacionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,7 +86,9 @@ export interface FileRoutesById {
   '/pedidos': typeof PedidosRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/pago/respuesta': typeof PagoRespuestaRoute
   '/producto/$slug': typeof ProductoSlugRoute
+  '/api/epayco/confirmacion': typeof ApiEpaycoConfirmacionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -80,7 +98,9 @@ export interface FileRouteTypes {
     | '/pedidos'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/pago/respuesta'
     | '/producto/$slug'
+    | '/api/epayco/confirmacion'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -88,7 +108,9 @@ export interface FileRouteTypes {
     | '/pedidos'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/pago/respuesta'
     | '/producto/$slug'
+    | '/api/epayco/confirmacion'
   id:
     | '__root__'
     | '/'
@@ -96,7 +118,9 @@ export interface FileRouteTypes {
     | '/pedidos'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/pago/respuesta'
     | '/producto/$slug'
+    | '/api/epayco/confirmacion'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -105,7 +129,9 @@ export interface RootRouteChildren {
   PedidosRoute: typeof PedidosRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  PagoRespuestaRoute: typeof PagoRespuestaRoute
   ProductoSlugRoute: typeof ProductoSlugRoute
+  ApiEpaycoConfirmacionRoute: typeof ApiEpaycoConfirmacionRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -145,11 +171,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pago/respuesta': {
+      id: '/pago/respuesta'
+      path: '/pago/respuesta'
+      fullPath: '/pago/respuesta'
+      preLoaderRoute: typeof PagoRespuestaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/producto/$slug': {
       id: '/producto/$slug'
       path: '/producto/$slug'
       fullPath: '/producto/$slug'
       preLoaderRoute: typeof ProductoSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/epayco/confirmacion': {
+      id: '/api/epayco/confirmacion'
+      path: '/api/epayco/confirmacion'
+      fullPath: '/api/epayco/confirmacion'
+      preLoaderRoute: typeof ApiEpaycoConfirmacionRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -161,7 +201,9 @@ const rootRouteChildren: RootRouteChildren = {
   PedidosRoute: PedidosRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  PagoRespuestaRoute: PagoRespuestaRoute,
   ProductoSlugRoute: ProductoSlugRoute,
+  ApiEpaycoConfirmacionRoute: ApiEpaycoConfirmacionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
