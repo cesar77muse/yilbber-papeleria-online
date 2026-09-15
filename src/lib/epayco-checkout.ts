@@ -3,7 +3,10 @@
  * sesión que creó el servidor con `iniciarPagoEpayco`.
  */
 
-const SCRIPT_URL = "https://checkout.epayco.co/checkout.js";
+// checkout.js decide entre el checkout viejo (v1) y el de sesiones (v2). Sin
+// `version`, le pregunta a ePayco si la sesión es v2, y para las nuestras
+// responde que no: cae al v1, que falla con "Error transaction". Se fuerza v2.
+const SCRIPT_URL = "https://checkout.epayco.co/checkout.js?version=v2";
 
 type ManejadorEpayco = { openNew: () => void };
 
