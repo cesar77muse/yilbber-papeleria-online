@@ -16,7 +16,6 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
  */
 
 const API_URL = "https://apify.epayco.co";
-const VALIDACION_URL = "https://secure.epayco.co/validation/v1/reference";
 
 type Config = {
   custId: string;
@@ -205,18 +204,37 @@ export async function firmaValida(campos: Record<string, string>): Promise<boole
   return igualesSinFiltrarTiempo(esperada, (campos["x_signature"] ?? "").toLowerCase());
 }
 
-/** Consulta la transacción directo a ePayco (servidor a servidor, por HTTPS). */
+/**
+ * Consulta la transacción directo a ePayco (servidor a servidor, autenticado).
+ * El endpoint público /validation/v1/reference no reconoce las transacciones del
+ * checkout v2 ("Error de datos o conexión"); /transaction/detail sí, y su `log`
+ * trae los mismos campos x_* que manda el webhook.
+ */
 export async function consultarTransaccion(refPayco: string): Promise<ResultadoEpayco | null> {
   const config = leerConfig();
-  const res = await fetch(`${VALIDACION_URL}/${encodeURIComponent(refPayco)}`);
+  const token = await login(config);
+  const res = await fetch(`${API_URL}/transaction/detail`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ filter: { referencePayco: refPayco } }),
+  });
   const json = (await res.json().catch(() => null)) as {
     success?: boolean;
-    data?: Record<string, unknown>;
+    data?: { log?: Record<string, unknown> | string };
   } | null;
-  if (!res.ok || !json?.success || !json.data) return null;
+
+  let log = json?.data?.log;
+  if (typeof log === "string") {
+    try {
+      log = JSON.parse(log) as Record<string, unknown>;
+    } catch {
+      log = undefined;
+    }
+  }
+  if (!res.ok || !json?.success || !log || typeof log !== "object") return null;
   // Una referencia de otro comercio no puede mover nuestros pedidos.
-  if (String(json.data["x_cust_id_cliente"] ?? "") !== config.custId) return null;
-  return aResultado(json.data);
+  if (String(log["x_cust_id_cliente"] ?? "") !== config.custId) return null;
+  return aResultado(log);
 }
 
 // --- Pedido -------------------------------------------------------------
