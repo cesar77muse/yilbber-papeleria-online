@@ -205,13 +205,41 @@ export async function firmaValida(campos: Record<string, string>): Promise<boole
 }
 
 /**
- * Consulta la transacción directo a ePayco (servidor a servidor, autenticado).
- * El endpoint público /validation/v1/reference no reconoce las transacciones del
- * checkout v2 ("Error de datos o conexión"); /transaction/detail sí, y su `log`
- * trae los mismos campos x_* que manda el webhook.
+ * Consulta la transacción directo a ePayco (servidor a servidor). La
+ * referencia llega en dos formas según cómo vuelva el cliente:
+ *   - numérica (387302002): la busca /transaction/detail, autenticado; el
+ *     endpoint público no reconoce esas referencias del checkout v2;
+ *   - hexadecimal (6ab7eca0651988e3bbbdaf81), la que manda el botón
+ *     "redirigir" del checkout: sólo la reconoce /validation/v1/reference.
+ * Los dos devuelven los mismos campos x_* que manda el webhook.
  */
 export async function consultarTransaccion(refPayco: string): Promise<ResultadoEpayco | null> {
   const config = leerConfig();
+  const log = /^\d+$/.test(refPayco)
+    ? await consultarPorNumero(config, refPayco)
+    : await consultarPorHash(refPayco);
+  if (!log) return null;
+  // Una referencia de otro comercio no puede mover nuestros pedidos.
+  if (String(log["x_cust_id_cliente"] ?? "") !== config.custId) return null;
+  return aResultado(log);
+}
+
+async function consultarPorHash(refPayco: string): Promise<Record<string, unknown> | null> {
+  const res = await fetch(
+    `https://secure.epayco.co/validation/v1/reference/${encodeURIComponent(refPayco)}`,
+  );
+  const json = (await res.json().catch(() => null)) as {
+    success?: boolean;
+    data?: Record<string, unknown>;
+  } | null;
+  if (!res.ok || !json?.success || !json.data || typeof json.data !== "object") return null;
+  return json.data;
+}
+
+async function consultarPorNumero(
+  config: Config,
+  refPayco: string,
+): Promise<Record<string, unknown> | null> {
   const token = await login(config);
   const res = await fetch(`${API_URL}/transaction/detail`, {
     method: "POST",
@@ -232,9 +260,7 @@ export async function consultarTransaccion(refPayco: string): Promise<ResultadoE
     }
   }
   if (!res.ok || !json?.success || !log || typeof log !== "object") return null;
-  // Una referencia de otro comercio no puede mover nuestros pedidos.
-  if (String(log["x_cust_id_cliente"] ?? "") !== config.custId) return null;
-  return aResultado(log);
+  return log;
 }
 
 // --- Pedido -------------------------------------------------------------

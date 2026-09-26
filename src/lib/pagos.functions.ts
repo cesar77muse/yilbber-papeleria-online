@@ -106,7 +106,7 @@ export const verificarPagoEpayco = createServerFn({ method: "POST" })
     const { aplicarResultado, consultarTransaccion } = await import("@/lib/epayco.server");
 
     const resultado = await consultarTransaccion(data.ref);
-    if (!resultado) throw new Error("No encontramos esa transacción en ePayco.");
+    if (!resultado) throw new Error("ePayco todavía no nos muestra esta transacción.");
 
     const pago = await aplicarResultado(resultado);
     if (!pago) {

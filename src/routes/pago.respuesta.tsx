@@ -75,13 +75,19 @@ function RespuestaPago() {
           </div>
         )}
 
+        {/* Si la consulta falla no sabemos cómo quedó el pago: ePayco igual nos
+            avisa por el webhook, así que no se le dice al cliente que falló. */}
         {estado.tipo === "error" && (
           <div>
-            <CircleX className="mx-auto h-14 w-14 text-destructive" aria-hidden="true" />
+            <Clock className="mx-auto h-14 w-14 text-brand-orange" aria-hidden="true" />
             <h1 className="mt-4 text-2xl uppercase text-brand-navy">
-              No pudimos confirmar tu pago
+              Aún no vemos el resultado de tu pago
             </h1>
             <p className="mt-3 text-sm text-muted-foreground">{estado.mensaje}</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Si ya pagaste, no vuelvas a pagar: ePayco nos avisa y tu pedido queda confirmado.
+              Consulta de nuevo en unos segundos o escríbenos por WhatsApp.
+            </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               {ref && (
                 <BotonSecundario onClick={() => void consultar()}>
