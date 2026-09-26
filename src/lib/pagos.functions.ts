@@ -56,7 +56,7 @@ export const iniciarPagoEpayco = createServerFn({ method: "POST" })
 
     // Las URLs de ePayco van siempre al dominio público canónico: ePayco rechaza
     // las de localhost, y un webhook que pase por una redirección (p. ej. desde
-    // *.lovable.app) llega sin los datos del POST. Para verificar un pago hecho
+    // www.) llega sin los datos del POST. Para verificar un pago hecho
     // desde local, abrir /pago/respuesta?ref_payco=... en localhost.
     const request = getRequest();
     const origen = SITE_URL;

@@ -1,9 +1,6 @@
-// Dominio público del sitio, en un solo lugar.
-//
-// Mientras el sitio viva en el subdominio de Lovable el valor por defecto sirve
-// tal cual; cuando pase a un dominio propio basta con definir SITE_URL (o
+// Dominio público del sitio, en un solo lugar. Se puede cambiar con SITE_URL (o
 // VITE_SITE_URL) en el entorno de despliegue, sin tocar código.
-const FALLBACK_SITE_URL = "https://yilbber-papeleria-online.lovable.app";
+const FALLBACK_SITE_URL = "https://papeleriayilbber.app";
 
 function readSiteUrl(): string {
   // import.meta.env para el bundle del navegador (Vite lo reemplaza en build);
