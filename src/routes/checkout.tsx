@@ -172,8 +172,8 @@ function CheckoutPage() {
     if (datos.nombre.trim().length < 2) nuevos.nombre = "Escribe tu nombre completo";
     else if (!SOLO_LETRAS.test(datos.nombre.trim()))
       nuevos.nombre = "El nombre sólo puede tener letras";
-    if (!/^\d{7,10}$/.test(datos.telefono.trim()))
-      nuevos.telefono = "Escribe un teléfono de 7 a 10 números";
+    if (!/^\d{10}$/.test(datos.telefono.trim()))
+      nuevos.telefono = "El teléfono debe tener 10 números";
     if (datos.correo.trim() !== "" && !FORMATO_CORREO.test(datos.correo.trim()))
       nuevos.correo = "Escribe un correo como tucorreo@ejemplo.com";
     if (datos.entrega === "domicilio" && datos.direccion.trim().length < 5)

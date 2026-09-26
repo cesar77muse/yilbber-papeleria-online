@@ -20,7 +20,7 @@ export const clienteSchema = z.object({
   telefono: z
     .string()
     .trim()
-    .regex(/^\d{7,10}$/, "El teléfono debe tener de 7 a 10 números"),
+    .regex(/^\d{10}$/, "El teléfono debe tener 10 números"),
   correo: z
     .union([z.string().trim().max(320).regex(FORMATO_CORREO, "Correo inválido"), z.literal("")])
     .default(""),

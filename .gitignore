@@ -34,3 +34,6 @@ dist-ssr
 
 # Archivos retirados a mano (Shopify)
 _to_delete/
+
+# Vercel
+.vercel/
