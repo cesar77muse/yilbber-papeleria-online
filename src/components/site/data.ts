@@ -39,30 +39,30 @@ export const sedes = [
   },
 ];
 
-// TODO: reemplazar por las reseñas reales de los clientes.
+// Ficha de Google Maps de la papelería. Actualizar calificación y total a mano.
+export const GOOGLE_RESENAS = {
+  calificacion: 4.5,
+  total: 21,
+  url: "https://maps.google.com/?cid=6048891707855327777",
+};
+
+// Reseñas reales de Google Maps (nombre + inicial del apellido).
 export const resenas = [
   {
-    nombre: "Marcela R.",
+    nombre: "Alicia N.",
     texto:
-      "Siempre encuentro todo para el colegio de mis hijos y el trato es muy amable. Llevo años comprando allí.",
+      "Muy amplio y amable el nuevo sitio. Entra mucha luz natural y, como siempre, todos muy amables.",
     estrellas: 5,
   },
   {
-    nombre: "Andrés G.",
+    nombre: "Alamo M.",
     texto:
-      "Compro la papelería de mi oficina al por mayor. Buenos precios y me resuelven los pedidos rápido.",
+      "Se encuentra la gran mayoría de útiles y textos escolares, además de regalos y otros elementos para oficina. El prestigio del negocio lo hace de los más respetados del sector.",
     estrellas: 5,
   },
   {
-    nombre: "Liliana P.",
-    texto:
-      "Excelente variedad de cuadernos y agendas. Me asesoraron muy bien para la lista escolar.",
-    estrellas: 5,
-  },
-  {
-    nombre: "Colegio San José",
-    texto:
-      "Nos han acompañado varias temporadas escolares con cumplimiento y buena atención.",
+    nombre: "Deisy T.",
+    texto: "Me gustó por muy buen precio, la recomiendo.",
     estrellas: 5,
   },
 ];
