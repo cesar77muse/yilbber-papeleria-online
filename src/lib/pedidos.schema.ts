@@ -5,15 +5,25 @@ import { z } from "zod";
  * No tiene secretos: la usan las server functions y puede viajar al navegador.
  */
 
+/** Letras (con tildes, ñ, ü…) y espacios: nada de números ni símbolos. */
+export const SOLO_LETRAS = /^[\p{L}\s]+$/u;
+/** usuario@dominio.ext, sin espacios y con al menos un punto en el dominio. */
+export const FORMATO_CORREO = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
+
 export const clienteSchema = z.object({
-  nombre: z.string().trim().min(2, "Escribe tu nombre").max(120),
+  nombre: z
+    .string()
+    .trim()
+    .min(2, "Escribe tu nombre")
+    .max(120)
+    .regex(SOLO_LETRAS, "El nombre sólo puede tener letras"),
   telefono: z
     .string()
     .trim()
-    .min(7, "Escribe un teléfono válido")
-    .max(20)
-    .regex(/^[0-9+()\s-]+$/, "El teléfono sólo puede tener números"),
-  correo: z.union([z.string().trim().email("Correo inválido").max(320), z.literal("")]).default(""),
+    .regex(/^\d{7,10}$/, "El teléfono debe tener de 7 a 10 números"),
+  correo: z
+    .union([z.string().trim().max(320).regex(FORMATO_CORREO, "Correo inválido"), z.literal("")])
+    .default(""),
   entrega: z.enum(["recoger", "domicilio"]),
   direccion: z.string().trim().max(300).default(""),
   notas: z.string().trim().max(1000).default(""),

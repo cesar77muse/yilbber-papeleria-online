@@ -33,6 +33,7 @@ import { crearPedido, type PedidoCreado } from "@/lib/pedidos.functions";
 import { consultarModoPago, iniciarPagoEpayco, type SesionEpayco } from "@/lib/pagos.functions";
 import { abrirCheckoutEpayco } from "@/lib/epayco-checkout";
 import { prepararComprobante, TIPOS_ACEPTADOS, type ComprobantePreparado } from "@/lib/comprobante";
+import { FORMATO_CORREO, SOLO_LETRAS } from "@/lib/pedidos.schema";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -82,6 +83,15 @@ const PASOS: Record<Metodo, { n: 1 | 2 | 3; label: string }[]> = {
 const inputClass =
   "mt-1.5 w-full rounded-2xl border border-input bg-background px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/30";
 const labelClass = "text-sm font-semibold text-brand-navy";
+
+/** Deja sólo números; si pegan "+57 300…" se quita el indicativo de Colombia. */
+function soloDigitosTelefono(valor: string) {
+  const digitos = valor.replace(/\D/g, "");
+  return (digitos.length > 10 && digitos.startsWith("57") ? digitos.slice(2) : digitos).slice(
+    0,
+    10,
+  );
+}
 
 function CheckoutPage() {
   // El carrito vive en localStorage: esperamos a hidratar para no pintar en el
@@ -160,10 +170,12 @@ function CheckoutPage() {
   const validarDatos = () => {
     const nuevos: Partial<Record<keyof Datos, string>> = {};
     if (datos.nombre.trim().length < 2) nuevos.nombre = "Escribe tu nombre completo";
-    if (datos.telefono.trim().replace(/\D/g, "").length < 7)
-      nuevos.telefono = "Escribe un teléfono de contacto";
-    if (datos.correo.trim() !== "" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(datos.correo.trim()))
-      nuevos.correo = "Ese correo no parece válido";
+    else if (!SOLO_LETRAS.test(datos.nombre.trim()))
+      nuevos.nombre = "El nombre sólo puede tener letras";
+    if (!/^\d{7,10}$/.test(datos.telefono.trim()))
+      nuevos.telefono = "Escribe un teléfono de 7 a 10 números";
+    if (datos.correo.trim() !== "" && !FORMATO_CORREO.test(datos.correo.trim()))
+      nuevos.correo = "Escribe un correo como tucorreo@ejemplo.com";
     if (datos.entrega === "domicilio" && datos.direccion.trim().length < 5)
       nuevos.direccion = "Escribe la dirección de entrega";
     if (datos.entrega === "domicilio" && !domicilioDisponible)
@@ -335,7 +347,10 @@ function CheckoutPage() {
                         <input
                           id="nombre"
                           value={datos.nombre}
-                          onChange={(e) => actualizar("nombre", e.target.value)}
+                          autoComplete="name"
+                          onChange={(e) =>
+                            actualizar("nombre", e.target.value.replace(/[^\p{L}\s]/gu, ""))
+                          }
                           placeholder="Tu nombre"
                           className={inputClass}
                           aria-invalid={!!errores.nombre}
@@ -348,10 +363,14 @@ function CheckoutPage() {
                         </label>
                         <input
                           id="telefono"
-                          inputMode="tel"
+                          type="tel"
+                          inputMode="numeric"
+                          autoComplete="tel-national"
                           value={datos.telefono}
-                          onChange={(e) => actualizar("telefono", e.target.value)}
-                          placeholder="300 000 0000"
+                          onChange={(e) =>
+                            actualizar("telefono", soloDigitosTelefono(e.target.value))
+                          }
+                          placeholder="3000000000"
                           className={inputClass}
                           aria-invalid={!!errores.telefono}
                         />
@@ -367,7 +386,16 @@ function CheckoutPage() {
                         id="correo"
                         type="email"
                         value={datos.correo}
-                        onChange={(e) => actualizar("correo", e.target.value)}
+                        autoComplete="email"
+                        onChange={(e) => actualizar("correo", e.target.value.replace(/\s/g, ""))}
+                        onBlur={() => {
+                          const correo = datos.correo.trim();
+                          if (correo !== "" && !FORMATO_CORREO.test(correo))
+                            setErrores((e) => ({
+                              ...e,
+                              correo: "Escribe un correo como tucorreo@ejemplo.com",
+                            }));
+                        }}
                         placeholder="tucorreo@ejemplo.com"
                         className={inputClass}
                         aria-invalid={!!errores.correo}
