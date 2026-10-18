@@ -41,7 +41,9 @@ export const Route = createFileRoute("/pedidos")({
   errorComponent: ({ error }) => (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center" role="alert">
       <h1 className="text-2xl uppercase text-brand-navy">No pudimos cargar el catálogo</h1>
-      <p className="mt-3 text-sm text-muted-foreground">{error instanceof Error ? error.message : String(error)}</p>
+      <p className="mt-3 text-sm text-muted-foreground">
+        {error instanceof Error ? error.message : String(error)}
+      </p>
     </div>
   ),
   notFoundComponent: () => (
@@ -85,8 +87,8 @@ function PedidosPage() {
         <h1 className="mt-5 text-2xl uppercase text-brand-navy md:text-4xl">Pedidos en línea</h1>
         <div className="mt-2 h-1 w-24 rounded-full bg-brand-orange" />
         <p className="mt-4 max-w-2xl text-base text-muted-foreground">
-          Estos son nuestros productos más pedidos. Busca lo que necesitas, elige la cantidad y
-          arma tu pedido en el carrito y escríbenos para confirmarlo.
+          Estos son nuestros productos más pedidos. Busca lo que necesitas, elige la cantidad y arma
+          tu pedido en el carrito y escríbenos para confirmarlo.
         </p>
 
         <div className="mt-8 space-y-4">
