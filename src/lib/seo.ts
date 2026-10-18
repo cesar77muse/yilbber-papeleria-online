@@ -124,3 +124,59 @@ export function datosProducto(producto: Producto, path: string) {
     },
   };
 }
+
+/**
+ * Datos schema.org de una página de categoría: CollectionPage con la lista de
+ * productos de la página que se está viendo.
+ */
+export function datosCategoria({
+  nombre,
+  description,
+  path,
+  productos,
+  desde,
+  total,
+}: {
+  nombre: string;
+  description: string;
+  path: string;
+  productos: Pick<Producto, "slug" | "name">[];
+  /** Posición del primer producto (1 en la primera página). */
+  desde: number;
+  total: number;
+}) {
+  const url = urlAbsoluta(path);
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": url,
+    url,
+    name: nombre,
+    description,
+    inLanguage: "es-CO",
+    isPartOf: { "@id": `${SITE_URL}/#sitio` },
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Inicio", item: urlAbsoluta("/") },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Pedidos en línea",
+          item: urlAbsoluta("/pedidos"),
+        },
+        { "@type": "ListItem", position: 3, name: nombre, item: url },
+      ],
+    },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: total,
+      itemListElement: productos.map((p, i) => ({
+        "@type": "ListItem",
+        position: desde + i,
+        url: urlAbsoluta(`/producto/${encodeURIComponent(p.slug)}`),
+        name: p.name,
+      })),
+    },
+  };
+}

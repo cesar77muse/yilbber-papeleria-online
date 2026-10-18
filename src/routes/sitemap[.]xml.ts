@@ -3,6 +3,7 @@ import type {} from "@tanstack/react-start";
 import { SITE_URL } from "@/lib/site-url";
 import { listProductosSitemap } from "@/lib/productos.functions";
 import { escapeXml } from "@/lib/seo";
+import { categorias } from "@/components/tienda/images";
 
 interface SitemapEntry {
   path: string;
@@ -18,10 +19,31 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const productos = await listProductosSitemap();
 
+        // Sólo las categorías con productos: una página vacía no le sirve a nadie.
+        const ultimaPorCategoria = new Map<string, string>();
+        for (const p of productos) {
+          const fecha = p.updated_at.slice(0, 10);
+          if (fecha > (ultimaPorCategoria.get(p.category) ?? "")) {
+            ultimaPorCategoria.set(p.category, fecha);
+          }
+        }
+
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/pedidos", changefreq: "weekly", priority: "0.8" },
           { path: "/politica-de-devoluciones", changefreq: "yearly", priority: "0.3" },
+          ...categorias.flatMap((c) => {
+            const lastmod = ultimaPorCategoria.get(c.id);
+            if (c.id === "todos" || !lastmod) return [];
+            return [
+              {
+                path: `/categoria/${c.id}`,
+                lastmod,
+                changefreq: "weekly" as const,
+                priority: "0.7",
+              },
+            ];
+          }),
           ...productos.map((p) => ({
             path: `/producto/${encodeURIComponent(p.slug)}`,
             lastmod: p.updated_at.slice(0, 10),

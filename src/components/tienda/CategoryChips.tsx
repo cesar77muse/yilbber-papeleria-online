@@ -1,68 +1,80 @@
 import { useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { categorias } from "./images";
 import { cn } from "@/lib/utils";
-import type { Producto } from "@/lib/productos.functions";
 
 const VISIBLE_COUNT = 7;
 
+const claseChip = (activa: boolean) =>
+  cn(
+    "block rounded-full border px-4 py-2 text-sm font-semibold transition-colors",
+    activa
+      ? "border-brand-orange bg-brand-orange text-primary-foreground"
+      : "border-brand-navy/15 bg-card text-brand-navy hover:border-brand-orange/60",
+  );
+
+/**
+ * Chips de categoría como enlaces reales a /pedidos y /categoria/$id, para que
+ * Google pueda seguirlos. Las que no caben quedan en el HTML pero ocultas
+ * hasta "Ver más".
+ */
 export function CategoryChips({
   activa,
-  onChange,
-  productos,
+  conteos,
+  q,
 }: {
   activa: string;
-  onChange: (id: string) => void;
-  productos: Producto[];
+  conteos: Record<string, number>;
+  q?: string | undefined;
 }) {
   const [expandido, setExpandido] = useState(false);
 
-  const ordenadas = useMemo(() => {
-    const conteos = new Map<string, number>();
-    for (const p of productos) {
-      conteos.set(p.category, (conteos.get(p.category) ?? 0) + 1);
-    }
-    const todos = categorias.filter((c) => c.id === "todos");
-    const restoConDatos = categorias
-      .filter((c) => c.id !== "todos" && (conteos.get(c.id) ?? 0) > 0)
-      .sort((a, b) => (conteos.get(b.id) ?? 0) - (conteos.get(a.id) ?? 0));
-    return [...todos, ...restoConDatos];
-  }, [productos]);
+  const ordenadas = useMemo(
+    () =>
+      categorias
+        .filter((c) => c.id !== "todos" && (conteos[c.id] ?? 0) > 0)
+        .sort((a, b) => (conteos[b.id] ?? 0) - (conteos[a.id] ?? 0)),
+    [conteos],
+  );
 
-  const visibles = useMemo(() => {
-    if (expandido) return ordenadas;
-    const base = ordenadas.slice(0, VISIBLE_COUNT);
-    if (!base.some((c) => c.id === activa)) {
-      const activaCat = ordenadas.find((c) => c.id === activa);
-      if (activaCat) base.push(activaCat);
-    }
-    return base;
-  }, [ordenadas, expandido, activa]);
-
-  const hayMas = ordenadas.length > visibles.length;
+  // "Todos" ocupa uno de los cupos visibles.
+  const hayMas = ordenadas.length > VISIBLE_COUNT - 1;
+  const search = q ? { q } : {};
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <ul className="flex flex-wrap gap-2" aria-label="Filtrar por categoría">
-        {visibles.map((c) => (
-          <li key={c.id}>
-            <button
-              type="button"
-              onClick={() => onChange(c.id)}
-              aria-pressed={activa === c.id}
-              className={cn(
-                "rounded-full border px-4 py-2 text-sm font-semibold transition-colors",
-                activa === c.id
-                  ? "border-brand-orange bg-brand-orange text-primary-foreground"
-                  : "border-brand-navy/15 bg-card text-brand-navy hover:border-brand-orange/60",
-              )}
+      <ul className="flex flex-wrap gap-2" aria-label="Categorías">
+        <li>
+          <Link
+            to="/pedidos"
+            search={search}
+            activeOptions={{ includeSearch: false }}
+            aria-current={activa === "todos" ? "page" : undefined}
+            className={claseChip(activa === "todos")}
+          >
+            Todos
+          </Link>
+        </li>
+        {ordenadas.map((c, i) => (
+          <li
+            key={c.id}
+            className={cn(!expandido && i >= VISIBLE_COUNT - 1 && activa !== c.id && "hidden")}
+          >
+            <Link
+              to="/categoria/$id"
+              params={{ id: c.id }}
+              search={search}
+              activeOptions={{ includeSearch: false }}
+              aria-current={activa === c.id ? "page" : undefined}
+              className={claseChip(activa === c.id)}
             >
               {c.label}
-            </button>
+            </Link>
           </li>
         ))}
       </ul>
-      {(hayMas || expandido) && (
+      {hayMas && (
         <button
           type="button"
           onClick={() => setExpandido((v) => !v)}

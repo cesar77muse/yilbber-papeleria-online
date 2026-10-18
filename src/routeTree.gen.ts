@@ -16,6 +16,7 @@ import { Route as PedidosRouteImport } from './routes/pedidos'
 import { Route as PoliticaDeDevolucionesRouteImport } from './routes/politica-de-devoluciones'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as CategoriaIdRouteImport } from './routes/categoria.$id'
 import { Route as PagoRespuestaRouteImport } from './routes/pago.respuesta'
 import { Route as ProductoSlugRouteImport } from './routes/producto.$slug'
 import { Route as ApiEpaycoConfirmacionRouteImport } from './routes/api/epayco/confirmacion'
@@ -55,6 +56,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CategoriaIdRoute = CategoriaIdRouteImport.update({
+  id: '/categoria/$id',
+  path: '/categoria/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PagoRespuestaRoute = PagoRespuestaRouteImport.update({
   id: '/pago/respuesta',
   path: '/pago/respuesta',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/politica-de-devoluciones': typeof PoliticaDeDevolucionesRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/categoria/$id': typeof CategoriaIdRoute
   '/pago/respuesta': typeof PagoRespuestaRoute
   '/producto/$slug': typeof ProductoSlugRoute
   '/api/epayco/confirmacion': typeof ApiEpaycoConfirmacionRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/politica-de-devoluciones': typeof PoliticaDeDevolucionesRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/categoria/$id': typeof CategoriaIdRoute
   '/pago/respuesta': typeof PagoRespuestaRoute
   '/producto/$slug': typeof ProductoSlugRoute
   '/api/epayco/confirmacion': typeof ApiEpaycoConfirmacionRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/politica-de-devoluciones': typeof PoliticaDeDevolucionesRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/categoria/$id': typeof CategoriaIdRoute
   '/pago/respuesta': typeof PagoRespuestaRoute
   '/producto/$slug': typeof ProductoSlugRoute
   '/api/epayco/confirmacion': typeof ApiEpaycoConfirmacionRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/politica-de-devoluciones'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/categoria/$id'
     | '/pago/respuesta'
     | '/producto/$slug'
     | '/api/epayco/confirmacion'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/politica-de-devoluciones'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/categoria/$id'
     | '/pago/respuesta'
     | '/producto/$slug'
     | '/api/epayco/confirmacion'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/politica-de-devoluciones'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/categoria/$id'
     | '/pago/respuesta'
     | '/producto/$slug'
     | '/api/epayco/confirmacion'
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   PoliticaDeDevolucionesRoute: typeof PoliticaDeDevolucionesRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  CategoriaIdRoute: typeof CategoriaIdRoute
   PagoRespuestaRoute: typeof PagoRespuestaRoute
   ProductoSlugRoute: typeof ProductoSlugRoute
   ApiEpaycoConfirmacionRoute: typeof ApiEpaycoConfirmacionRoute
@@ -211,6 +224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/categoria/$id': {
+      id: '/categoria/$id'
+      path: '/categoria/$id'
+      fullPath: '/categoria/$id'
+      preLoaderRoute: typeof CategoriaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pago/respuesta': {
       id: '/pago/respuesta'
       path: '/pago/respuesta'
@@ -243,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   PoliticaDeDevolucionesRoute: PoliticaDeDevolucionesRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  CategoriaIdRoute: CategoriaIdRoute,
   PagoRespuestaRoute: PagoRespuestaRoute,
   ProductoSlugRoute: ProductoSlugRoute,
   ApiEpaycoConfirmacionRoute: ApiEpaycoConfirmacionRoute,
