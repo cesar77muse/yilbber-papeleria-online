@@ -85,8 +85,7 @@ export const useCartStore = create<CartStore>()(
   ),
 );
 
-export const totalUnidades = (items: CartItem[]) =>
-  items.reduce((suma, i) => suma + i.quantity, 0);
+export const totalUnidades = (items: CartItem[]) => items.reduce((suma, i) => suma + i.quantity, 0);
 
 export const totalCOP = (items: CartItem[]) =>
   items.reduce((suma, i) => suma + i.priceCop * i.quantity, 0);

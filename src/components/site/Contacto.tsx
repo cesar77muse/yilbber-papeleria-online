@@ -18,7 +18,10 @@ export function Contacto() {
 
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         {sedes.map((s) => (
-          <article key={s.nombre} className="rounded-3xl border border-brand-navy/10 bg-card p-6 shadow-sm">
+          <article
+            key={s.nombre}
+            className="rounded-3xl border border-brand-navy/10 bg-card p-6 shadow-sm"
+          >
             <h3 className="text-lg uppercase text-brand-navy">{s.nombre}</h3>
             <p className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-orange" aria-hidden="true" />

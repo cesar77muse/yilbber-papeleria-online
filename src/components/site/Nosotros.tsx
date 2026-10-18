@@ -14,9 +14,9 @@ export function Nosotros() {
       <div className="mt-8 grid gap-6 md:grid-cols-2 md:gap-10">
         <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
           <p>
-            Papelería Yilbber es un negocio dedicado a la comercialización de productos de papelería,
-            útiles escolares y artículos de oficina, con una amplia variedad de productos para
-            estudiantes, familias, profesionales y empresas.
+            Papelería Yilbber es un negocio dedicado a la comercialización de productos de
+            papelería, útiles escolares y artículos de oficina, con una amplia variedad de productos
+            para estudiantes, familias, profesionales y empresas.
           </p>
           <p>
             Contamos con dos sedes en Duitama, Boyacá, donde nuestros clientes encuentran todo lo
@@ -26,8 +26,8 @@ export function Nosotros() {
           </p>
           <p>
             Buscamos brindar una atención cercana y un servicio confiable, facilitando que nuestros
-            clientes encuentren en un solo lugar los productos que necesitan para estudiar, trabajar,
-            organizarse y desarrollar sus actividades del día a día.
+            clientes encuentren en un solo lugar los productos que necesitan para estudiar,
+            trabajar, organizarse y desarrollar sus actividades del día a día.
           </p>
         </div>
 
