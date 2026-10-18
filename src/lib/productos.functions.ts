@@ -39,7 +39,7 @@ export const listProductos = createServerFn({ method: "GET" }).handler(
 );
 
 export const getProductoPorSlug = createServerFn({ method: "GET" })
-  .inputValidator((data: { slug: string }) => data)
+  .validator((data: { slug: string }) => data)
   .handler(async ({ data: input }): Promise<Producto | null> => {
     const { data, error } = await supabaseServer()
       .from("products")

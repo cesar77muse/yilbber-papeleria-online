@@ -56,7 +56,7 @@ function decodificarBase64(base64: string): Uint8Array<ArrayBuffer> {
 }
 
 export const crearPedido = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => pedidoSchema.parse(data))
+  .validator((data: unknown) => pedidoSchema.parse(data))
   .handler(async ({ data }): Promise<PedidoCreado> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { armarLineas, datosCliente, guardarPedido } = await import("@/lib/pedidos.server");

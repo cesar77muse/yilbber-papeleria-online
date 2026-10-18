@@ -25,7 +25,7 @@ export type SesionEpayco = {
 };
 
 export const iniciarPagoEpayco = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => inicioSchema.parse(data))
+  .validator((data: unknown) => inicioSchema.parse(data))
   .handler(async ({ data }): Promise<SesionEpayco> => {
     const { getRequest } = await import("@tanstack/react-start/server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -101,7 +101,7 @@ const verificacionSchema = z.object({
 });
 
 export const verificarPagoEpayco = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => verificacionSchema.parse(data))
+  .validator((data: unknown) => verificacionSchema.parse(data))
   .handler(async ({ data }): Promise<PagoAplicado> => {
     const { aplicarResultado, consultarTransaccion } = await import("@/lib/epayco.server");
 

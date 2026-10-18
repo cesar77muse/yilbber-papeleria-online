@@ -41,7 +41,7 @@ export const Route = createFileRoute("/pedidos")({
   errorComponent: ({ error }) => (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center" role="alert">
       <h1 className="text-2xl uppercase text-brand-navy">No pudimos cargar el catálogo</h1>
-      <p className="mt-3 text-sm text-muted-foreground">{error.message}</p>
+      <p className="mt-3 text-sm text-muted-foreground">{error instanceof Error ? error.message : String(error)}</p>
     </div>
   ),
   notFoundComponent: () => (
