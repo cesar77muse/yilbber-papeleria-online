@@ -1,12 +1,6 @@
 import { Search, X } from "lucide-react";
 
-export function SearchBar({
-  valor,
-  onChange,
-}: {
-  valor: string;
-  onChange: (v: string) => void;
-}) {
+export function SearchBar({ valor, onChange }: { valor: string; onChange: (v: string) => void }) {
   return (
     <div className="relative">
       <Search

@@ -50,9 +50,7 @@ export function ProductCard({ producto }: { producto: Producto }) {
         </DialogTrigger>
         <DialogContent className="max-w-2xl">
           <DialogTitle className="text-lg uppercase text-brand-navy">{producto.name}</DialogTitle>
-          <DialogDescription>
-            {producto.description || "Producto de papelería."}
-          </DialogDescription>
+          <DialogDescription>{producto.description || "Producto de papelería."}</DialogDescription>
           <img
             src={img}
             alt={producto.name}
@@ -60,9 +58,7 @@ export function ProductCard({ producto }: { producto: Producto }) {
             height={768}
             className="mt-2 w-full rounded-2xl object-cover"
           />
-          <p className="font-display text-xl text-brand-orange">
-            {formatoCOP(producto.price_cop)}
-          </p>
+          <p className="font-display text-xl text-brand-orange">{formatoCOP(producto.price_cop)}</p>
         </DialogContent>
       </Dialog>
 
