@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as GoogleProductosDotxmlRouteImport } from './routes/google-productos[.]xml'
 import { Route as PedidosRouteImport } from './routes/pedidos'
+import { Route as PoliticaDeDevolucionesRouteImport } from './routes/politica-de-devoluciones'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PagoRespuestaRouteImport } from './routes/pago.respuesta'
@@ -37,6 +38,11 @@ const GoogleProductosDotxmlRoute = GoogleProductosDotxmlRouteImport.update({
 const PedidosRoute = PedidosRouteImport.update({
   id: '/pedidos',
   path: '/pedidos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliticaDeDevolucionesRoute = PoliticaDeDevolucionesRouteImport.update({
+  id: '/politica-de-devoluciones',
+  path: '/politica-de-devoluciones',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/google-productos.xml': typeof GoogleProductosDotxmlRoute
   '/pedidos': typeof PedidosRoute
+  '/politica-de-devoluciones': typeof PoliticaDeDevolucionesRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/pago/respuesta': typeof PagoRespuestaRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/google-productos.xml': typeof GoogleProductosDotxmlRoute
   '/pedidos': typeof PedidosRoute
+  '/politica-de-devoluciones': typeof PoliticaDeDevolucionesRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/pago/respuesta': typeof PagoRespuestaRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/google-productos.xml': typeof GoogleProductosDotxmlRoute
   '/pedidos': typeof PedidosRoute
+  '/politica-de-devoluciones': typeof PoliticaDeDevolucionesRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/pago/respuesta': typeof PagoRespuestaRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/google-productos.xml'
     | '/pedidos'
+    | '/politica-de-devoluciones'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/pago/respuesta'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/google-productos.xml'
     | '/pedidos'
+    | '/politica-de-devoluciones'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/pago/respuesta'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/google-productos.xml'
     | '/pedidos'
+    | '/politica-de-devoluciones'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/pago/respuesta'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   GoogleProductosDotxmlRoute: typeof GoogleProductosDotxmlRoute
   PedidosRoute: typeof PedidosRoute
+  PoliticaDeDevolucionesRoute: typeof PoliticaDeDevolucionesRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   PagoRespuestaRoute: typeof PagoRespuestaRoute
@@ -175,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/pedidos'
       fullPath: '/pedidos'
       preLoaderRoute: typeof PedidosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/politica-de-devoluciones': {
+      id: '/politica-de-devoluciones'
+      path: '/politica-de-devoluciones'
+      fullPath: '/politica-de-devoluciones'
+      preLoaderRoute: typeof PoliticaDeDevolucionesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/robots.txt': {
@@ -220,6 +240,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   GoogleProductosDotxmlRoute: GoogleProductosDotxmlRoute,
   PedidosRoute: PedidosRoute,
+  PoliticaDeDevolucionesRoute: PoliticaDeDevolucionesRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   PagoRespuestaRoute: PagoRespuestaRoute,

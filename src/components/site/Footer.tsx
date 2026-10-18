@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import logo from "@/assets/logo-yilbber.png";
 import { sedes, EMAIL } from "./data";
 
@@ -38,6 +39,11 @@ export function Footer() {
             </li>
             <li>311 234 7090 · 321 878 6089</li>
             <li>WhatsApp 321 451 2343</li>
+            <li>
+              <Link to="/politica-de-devoluciones" className="hover:text-brand-orange-soft">
+                Política de cambios y devoluciones
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
