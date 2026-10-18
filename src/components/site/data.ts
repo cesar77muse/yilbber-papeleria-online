@@ -19,6 +19,25 @@ export const MINIMO_DOMICILIO_COP = 50000;
 export const EPAYCO_MINIMO_COP = 5000;
 export const EPAYCO_MAXIMO_COP = 5000000;
 
+// Horario de atención, igual en las dos sedes. Debe coincidir con el perfil
+// de Google Business; de aquí salen el sitio y los datos para Google (seo.ts).
+export const horario = [
+  {
+    dias: "Lunes a viernes",
+    horas: "8:00 a. m. – 6:00 p. m.",
+    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    opens: "08:00",
+    closes: "18:00",
+  },
+  {
+    dias: "Sábados y domingos",
+    horas: "9:00 a. m. – 6:00 p. m.",
+    dayOfWeek: ["Saturday", "Sunday"],
+    opens: "09:00",
+    closes: "18:00",
+  },
+];
+
 export const sedes = [
   {
     nombre: "Sede principal",

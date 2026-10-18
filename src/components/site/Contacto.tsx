@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { MapPin, Phone, Mail, MessageCircle, ExternalLink, Send } from "lucide-react";
-import { sedes, EMAIL, whatsappUrl } from "./data";
+import { MapPin, Phone, Mail, MessageCircle, ExternalLink, Send, Clock } from "lucide-react";
+import { sedes, horario, EMAIL, whatsappUrl } from "./data";
 import { enviarMensajeContacto } from "@/lib/contacto.functions";
 
 export function Contacto() {
@@ -31,6 +31,16 @@ export function Contacto() {
                 {s.ciudad}
               </span>
             </p>
+            <div className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
+              <Clock className="mt-0.5 h-4 w-4 shrink-0 text-brand-orange" aria-hidden="true" />
+              <ul>
+                {horario.map((h) => (
+                  <li key={h.dias}>
+                    <span className="font-semibold text-brand-navy">{h.dias}:</span> {h.horas}
+                  </li>
+                ))}
+              </ul>
+            </div>
             <ul className="mt-3 space-y-1.5">
               {s.telefonos.map((t) => (
                 <li key={t.tel}>

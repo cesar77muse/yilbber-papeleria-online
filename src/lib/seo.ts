@@ -1,5 +1,5 @@
 import { SITE_URL } from "@/lib/site-url";
-import { EMAIL, GOOGLE_RESENAS, sedes } from "@/components/site/data";
+import { EMAIL, GOOGLE_RESENAS, horario, sedes } from "@/components/site/data";
 import { categorias } from "@/components/tienda/images";
 import type { Producto } from "@/lib/productos.functions";
 
@@ -75,6 +75,12 @@ export function datosNegocio(description: string) {
         priceRange: "$",
         currenciesAccepted: "COP",
         hasMap: sede.maps,
+        openingHoursSpecification: horario.map((h) => ({
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: h.dayOfWeek.map((d) => `https://schema.org/${d}`),
+          opens: h.opens,
+          closes: h.closes,
+        })),
         areaServed: { "@type": "City", name: "Duitama" },
         address: {
           "@type": "PostalAddress",
