@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { SITE_URL } from "@/lib/site-url";
 import { listProductosSitemap } from "@/lib/productos.functions";
+import { escapeXml } from "@/lib/seo";
 
 interface SitemapEntry {
   path: string;
@@ -10,13 +11,6 @@ interface SitemapEntry {
   priority?: string;
   image?: { loc: string; title: string } | undefined;
 }
-
-// Los slugs y nombres vienen de la base: un & o < en un nombre rompería el XML.
-const escapeXml = (s: string) =>
-  s.replace(
-    /[&<>"']/g,
-    (c) => `&${{ "&": "amp", "<": "lt", ">": "gt", '"': "quot", "'": "apos" }[c]};`,
-  );
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {

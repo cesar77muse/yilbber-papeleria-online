@@ -28,6 +28,13 @@ export const jsonLd = (data: object) => ({
   children: JSON.stringify(data).replace(/</g, "\\u003c"),
 });
 
+// Los slugs y nombres vienen de la base: un & o < en un nombre rompería el XML.
+export const escapeXml = (s: string) =>
+  s.replace(
+    /[&<>"']/g,
+    (c) => `&${{ "&": "amp", "<": "lt", ">": "gt", '"': "quot", "'": "apos" }[c]};`,
+  );
+
 const ORGANIZACION_ID = `${SITE_URL}/#organizacion`;
 
 // Datos de las dos sedes para Google (schema.org). Deben coincidir con el

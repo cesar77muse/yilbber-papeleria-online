@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as GoogleProductosDotxmlRouteImport } from './routes/google-productos[.]xml'
 import { Route as PedidosRouteImport } from './routes/pedidos'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -26,6 +27,11 @@ const IndexRoute = IndexRouteImport.update({
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GoogleProductosDotxmlRoute = GoogleProductosDotxmlRouteImport.update({
+  id: '/google-productos.xml',
+  path: '/google-productos.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PedidosRoute = PedidosRouteImport.update({
@@ -62,6 +68,7 @@ const ApiEpaycoConfirmacionRoute = ApiEpaycoConfirmacionRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/google-productos.xml': typeof GoogleProductosDotxmlRoute
   '/pedidos': typeof PedidosRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/google-productos.xml': typeof GoogleProductosDotxmlRoute
   '/pedidos': typeof PedidosRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
+  '/google-productos.xml': typeof GoogleProductosDotxmlRoute
   '/pedidos': typeof PedidosRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/checkout'
+    | '/google-productos.xml'
     | '/pedidos'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/checkout'
+    | '/google-productos.xml'
     | '/pedidos'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/checkout'
+    | '/google-productos.xml'
     | '/pedidos'
     | '/robots.txt'
     | '/sitemap.xml'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckoutRoute: typeof CheckoutRoute
+  GoogleProductosDotxmlRoute: typeof GoogleProductosDotxmlRoute
   PedidosRoute: typeof PedidosRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/checkout'
       preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/google-productos.xml': {
+      id: '/google-productos.xml'
+      path: '/google-productos.xml'
+      fullPath: '/google-productos.xml'
+      preLoaderRoute: typeof GoogleProductosDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pedidos': {
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckoutRoute: CheckoutRoute,
+  GoogleProductosDotxmlRoute: GoogleProductosDotxmlRoute,
   PedidosRoute: PedidosRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
