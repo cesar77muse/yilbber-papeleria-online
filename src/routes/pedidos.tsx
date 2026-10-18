@@ -8,6 +8,7 @@ import { SearchBar } from "@/components/tienda/SearchBar";
 import { CategoryChips } from "@/components/tienda/CategoryChips";
 import { ProductCard } from "@/components/tienda/ProductCard";
 import { listProductos } from "@/lib/productos.functions";
+import { canonical } from "@/lib/seo";
 
 const productosQuery = queryOptions({
   queryKey: ["catalogo-productos"],
@@ -22,16 +23,20 @@ export const Route = createFileRoute("/pedidos")({
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(productosQuery);
   },
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () => {
+    const { meta, links } = canonical("/pedidos");
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        ...meta,
+      ],
+      links,
+    };
+  },
   component: PedidosPage,
   errorComponent: ({ error }) => (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center" role="alert">

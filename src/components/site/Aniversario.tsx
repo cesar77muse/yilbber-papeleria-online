@@ -1,4 +1,4 @@
-import aniversario from "@/assets/aniversario-40-yilbber.jpg.asset.json";
+import aniversario from "@/assets/aniversario-40-yilbber.jpg";
 
 export function Aniversario() {
   return (
@@ -21,7 +21,7 @@ export function Aniversario() {
 
         <figure className="overflow-hidden rounded-3xl border-4 border-brand-orange/70 shadow-2xl">
           <img
-            src={aniversario.url}
+            src={aniversario}
             alt="Afiche conmemorativo de los 40 años de Publigráficas Yilbber"
             loading="lazy"
             className="h-full w-full object-cover"

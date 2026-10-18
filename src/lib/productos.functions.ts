@@ -51,3 +51,22 @@ export const getProductoPorSlug = createServerFn({ method: "GET" })
     if (error) throw error;
     return (data as Producto | null) ?? null;
   });
+
+export type ProductoSitemap = Pick<Producto, "slug" | "name" | "image_url"> & {
+  updated_at: string;
+};
+
+/** Productos activos para sitemap.xml: lo justo para cada <url>. */
+export const listProductosSitemap = createServerFn({ method: "GET" }).handler(
+  async (): Promise<ProductoSitemap[]> => {
+    const { data, error } = await supabaseServer()
+      .from("products")
+      .select("slug, name, image_url, updated_at")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .limit(5000);
+
+    if (error) throw error;
+    return data ?? [];
+  },
+);

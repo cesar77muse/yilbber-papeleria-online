@@ -8,6 +8,7 @@ import { Footer } from "@/components/site/Footer";
 import { getProductoPorSlug } from "@/lib/productos.functions";
 import { useCartStore, MAX_POR_PRODUCTO } from "@/stores/cartStore";
 import { formatoCOP, imagenDe } from "@/components/tienda/images";
+import { OG_IMAGE, canonical, datosProducto, jsonLd } from "@/lib/seo";
 
 const productoQuery = (slug: string) =>
   queryOptions({
@@ -19,12 +20,18 @@ export const Route = createFileRoute("/producto/$slug")({
   loader: async ({ context, params }) => {
     const producto = await context.queryClient.ensureQueryData(productoQuery(params.slug));
     if (!producto) throw notFound();
-    return { nombre: producto.name };
+    return { producto };
   },
-  head: ({ loaderData }) => {
-    const nombre = loaderData?.nombre ?? "Producto";
+  head: ({ loaderData, params }) => {
+    const producto = loaderData?.producto;
+    const nombre = producto?.name ?? "Producto";
     const title = `${nombre} | Papelería Yilbber`;
-    const description = `${nombre} disponible en Papelería Yilbber, Duitama. Agrégalo a tu pedido y escríbenos para confirmar.`;
+    const precio = producto ? ` a ${formatoCOP(producto.price_cop)}` : "";
+    const description = `${nombre}${precio} en Papelería Yilbber, Duitama. Agrégalo a tu pedido y paga en línea o recoge en la tienda.`;
+    const path = `/producto/${params.slug}`;
+    const imagen = producto?.image_url ?? OG_IMAGE;
+    const { meta, links } = canonical(path);
+
     return {
       meta: [
         { title },
@@ -32,8 +39,12 @@ export const Route = createFileRoute("/producto/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "product" },
-        { name: "twitter:card", content: "summary_large_image" },
+        { property: "og:image", content: imagen },
+        { name: "twitter:image", content: imagen },
+        ...meta,
       ],
+      links,
+      scripts: producto ? [jsonLd(datosProducto(producto, path))] : [],
     };
   },
   component: ProductoPage,
