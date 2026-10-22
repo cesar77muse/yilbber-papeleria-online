@@ -33,3 +33,8 @@ _to_delete/
 
 # Vercel
 .vercel/
+
+# Environment variables (live in Vercel, never in git)
+.env
+.env.*
+!.env.example
